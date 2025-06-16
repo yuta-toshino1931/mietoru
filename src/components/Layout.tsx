@@ -19,10 +19,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
 
   const navigation = [
-    { name: "ダッシュボード", href: "/", icon: Home },
-    { name: "ロードマップ設定", href: "/roadmap", icon: Map },
-    { name: "予実管理", href: "/budget-actual", icon: BarChart3 },
-    { name: "相談・サポート", href: "/support", icon: MessageCircle },
+    { name: "ダッシュボード", href: "/mietoru", icon: Home },
+    { name: "ロードマップ設定", href: "/mietoru/roadmap", icon: Map },
+    { name: "予実管理", href: "/mietoru/budget-actual", icon: BarChart3 },
+    { name: "相談・サポート", href: "/mietoru/support", icon: MessageCircle },
   ];
 
   return (
