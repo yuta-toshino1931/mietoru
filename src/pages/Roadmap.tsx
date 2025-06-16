@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Save, Calculator, TrendingUp } from "lucide-react";
+import { Save, Calculator } from "lucide-react";
 import {
   LineChart,
   Line,

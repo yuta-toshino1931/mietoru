@@ -1,8 +1,6 @@
 import React from "react";
-import { TrendingUp, Target, AlertCircle, DollarSign } from "lucide-react";
+import { TrendingUp, AlertCircle, DollarSign } from "lucide-react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
