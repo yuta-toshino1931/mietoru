@@ -11,11 +11,11 @@ function App() {
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/budget-actual" element={<BudgetActual />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/mietoru" element={<Dashboard />} />
+          <Route path="/mietoru/roadmap" element={<Roadmap />} />
+          <Route path="/mietoru/budget-actual" element={<BudgetActual />} />
+          <Route path="/mietoru/support" element={<Support />} />
+          <Route path="/mietoru/settings" element={<Settings />} />
         </Routes>
       </Layout>
     </Router>
