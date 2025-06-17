@@ -43,7 +43,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </h1>
           </div>
           <Link
-            to="/settings"
+            to="/mietoru/settings"
             className="p-2 rounded-md text-text hover:bg-sub2 transition-colors"
           >
             <Settings className="h-6 w-6" />
