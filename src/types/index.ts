@@ -127,3 +127,98 @@ export type AlertType =
   | "system"
   | "reminder";
 export type AlertSeverity = "low" | "medium" | "high" | "critical";
+
+// 認証関連の型定義
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  isSetupComplete: boolean;
+  createdAt: Date;
+  lastLogin: Date;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface GoogleAuthRequest {
+  idToken: string;
+}
+
+export interface AuthResponse {
+  user: AuthUser;
+  token: string;
+  refreshToken: string;
+}
+
+// 初期設定関連の型定義
+export interface InitialSetup {
+  currentAssets: number;
+  companySize: CompanySize;
+  fiscalYearStartMonth: number;
+  employeeCount: number;
+  industry: Industry;
+  businessExperience: BusinessExperience;
+  financialKnowledge: FinancialKnowledge;
+  priorityGoals: PriorityGoal[];
+  longTermGoal: LongTermGoal;
+}
+
+export type CompanySize =
+  | "個人事業主"
+  | "法人（従業員1-5名）"
+  | "法人（従業員6-20名）"
+  | "法人（従業員21名以上）";
+
+export type Industry =
+  | "IT・ソフトウェア"
+  | "製造業"
+  | "小売業"
+  | "飲食業"
+  | "サービス業"
+  | "建設業"
+  | "医療・福祉"
+  | "教育"
+  | "金融・保険"
+  | "不動産"
+  | "その他";
+
+export type BusinessExperience =
+  | "1年未満"
+  | "1-3年"
+  | "3-5年"
+  | "5-10年"
+  | "10年以上";
+
+export type FinancialKnowledge =
+  | "初心者"
+  | "基本レベル"
+  | "中級レベル"
+  | "上級レベル";
+
+export type PriorityGoal =
+  | "売上向上"
+  | "利益改善"
+  | "コスト削減"
+  | "キャッシュフロー改善"
+  | "投資計画"
+  | "税務対策"
+  | "資金調達"
+  | "事業拡大";
+
+export interface LongTermGoal {
+  targetYear: number;
+  targetNetWorth: number; // 目標純資産
+  description?: string;
+}
+
+// 設定ステップ関連
+export interface SetupStep {
+  id: number;
+  title: string;
+  description: string;
+  completed: boolean;
+}

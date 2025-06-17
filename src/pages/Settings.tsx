@@ -1,5 +1,23 @@
-import React, { useState } from "react";
-import { Save, Plus, Trash2, Bell, User, Database } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Save,
+  Plus,
+  Trash2,
+  Bell,
+  User,
+  Database,
+  Building,
+  Target,
+} from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import type {
+  InitialSetup,
+  CompanySize,
+  Industry,
+  BusinessExperience,
+  FinancialKnowledge,
+  PriorityGoal,
+} from "../types";
 
 interface Task {
   id: number;
@@ -9,6 +27,8 @@ interface Task {
 }
 
 const Settings: React.FC = () => {
+  const { user, userSetup, updateUserSetup } = useAuth();
+
   const [tasks, setTasks] = useState<Task[]>([
     { id: 1, name: "月次売上の確認と入力", day: 5, enabled: true },
     { id: 2, name: "経費の整理と計上", day: 10, enabled: true },
@@ -17,9 +37,13 @@ const Settings: React.FC = () => {
 
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDay, setNewTaskDay] = useState(1);
+
+  // 初期設定データの状態管理
+  const [setupData, setSetupData] = useState<InitialSetup | null>(null);
+
   const [userInfo, setUserInfo] = useState({
-    name: "田中太郎",
-    email: "tanaka@example.com",
+    name: user?.name || "田中太郎",
+    email: user?.email || "tanaka@example.com",
     company: "株式会社サンプル",
     phone: "03-1234-5678",
   });
@@ -36,6 +60,61 @@ const Settings: React.FC = () => {
     browser: true,
     mobile: false,
   });
+
+  // オプション定義
+  const companyTypes: CompanySize[] = [
+    "個人事業主",
+    "法人（従業員1-5名）",
+    "法人（従業員6-20名）",
+    "法人（従業員21名以上）",
+  ];
+
+  const industries: Industry[] = [
+    "IT・ソフトウェア",
+    "製造業",
+    "小売業",
+    "飲食業",
+    "サービス業",
+    "建設業",
+    "医療・福祉",
+    "教育",
+    "金融・保険",
+    "不動産",
+    "その他",
+  ];
+
+  const experienceOptions: BusinessExperience[] = [
+    "1年未満",
+    "1-3年",
+    "3-5年",
+    "5-10年",
+    "10年以上",
+  ];
+
+  const knowledgeOptions: FinancialKnowledge[] = [
+    "初心者",
+    "基本レベル",
+    "中級レベル",
+    "上級レベル",
+  ];
+
+  const goalOptions: PriorityGoal[] = [
+    "売上向上",
+    "利益改善",
+    "コスト削減",
+    "キャッシュフロー改善",
+    "投資計画",
+    "税務対策",
+    "資金調達",
+    "事業拡大",
+  ];
+
+  // 設定データを初期化
+  useEffect(() => {
+    if (userSetup) {
+      setSetupData(userSetup);
+    }
+  }, [userSetup]);
 
   const handleAddTask = () => {
     if (newTaskName.trim()) {
@@ -64,8 +143,39 @@ const Settings: React.FC = () => {
   };
 
   const handleSaveSettings = () => {
+    if (setupData) {
+      updateUserSetup(setupData);
+    }
     alert("設定を保存しました。");
   };
+
+  const togglePriorityGoal = (goal: PriorityGoal) => {
+    if (!setupData) return;
+
+    const newGoals = setupData.priorityGoals.includes(goal)
+      ? setupData.priorityGoals.filter((g) => g !== goal)
+      : [...setupData.priorityGoals, goal];
+
+    setSetupData({ ...setupData, priorityGoals: newGoals });
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("ja-JP", {
+      style: "currency",
+      currency: "JPY",
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  if (!setupData) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500">初期設定データを読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -78,6 +188,229 @@ const Settings: React.FC = () => {
           <Save className="h-4 w-4" />
           <span>設定を保存</span>
         </button>
+      </div>
+
+      {/* 事業基本情報設定 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* 基本情報 */}
+        <div className="card">
+          <div className="flex items-center space-x-2 mb-4">
+            <Building className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-text">事業基本情報</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm text-text/70 mb-2">
+                企業規模
+              </label>
+              <select
+                value={setupData.companySize}
+                onChange={(e) =>
+                  setSetupData({
+                    ...setupData,
+                    companySize: e.target.value as CompanySize,
+                  })
+                }
+                className="input-field w-full"
+              >
+                {companyTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-text/70 mb-2">業界</label>
+              <select
+                value={setupData.industry}
+                onChange={(e) =>
+                  setSetupData({
+                    ...setupData,
+                    industry: e.target.value as Industry,
+                  })
+                }
+                className="input-field w-full"
+              >
+                {industries.map((industry) => (
+                  <option key={industry} value={industry}>
+                    {industry}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-text/70 mb-2">
+                  事業年度開始月
+                </label>
+                <select
+                  value={setupData.fiscalYearStartMonth}
+                  onChange={(e) =>
+                    setSetupData({
+                      ...setupData,
+                      fiscalYearStartMonth: parseInt(e.target.value),
+                    })
+                  }
+                  className="input-field w-full"
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                    <option key={month} value={month}>
+                      {month}月
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm text-text/70 mb-2">
+                  従業員数
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={setupData.employeeCount}
+                  onChange={(e) =>
+                    setSetupData({
+                      ...setupData,
+                      employeeCount: parseInt(e.target.value) || 1,
+                    })
+                  }
+                  className="input-field w-full"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 財務・目標設定 */}
+        <div className="card">
+          <div className="flex items-center space-x-2 mb-4">
+            <Target className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-text">財務・目標設定</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm text-text/70 mb-2">
+                現在の総資産
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  step="10000"
+                  value={setupData.currentAssets}
+                  onChange={(e) =>
+                    setSetupData({
+                      ...setupData,
+                      currentAssets: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="input-field w-full pr-12 text-right"
+                />
+                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text/50">
+                  円
+                </span>
+              </div>
+              <p className="text-xs text-text/60 mt-1">
+                現在: {formatCurrency(setupData.currentAssets)}
+              </p>
+            </div>
+
+            <div className="bg-blue-50 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                <strong>長期目標:</strong> {setupData.longTermGoal.targetYear}
+                年までに
+                {formatCurrency(setupData.longTermGoal.targetNetWorth)}
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                必要増加額:{" "}
+                {formatCurrency(
+                  setupData.longTermGoal.targetNetWorth -
+                    setupData.currentAssets
+                )}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm text-text/70 mb-2">
+                事業経験
+              </label>
+              <select
+                value={setupData.businessExperience}
+                onChange={(e) =>
+                  setSetupData({
+                    ...setupData,
+                    businessExperience: e.target.value as BusinessExperience,
+                  })
+                }
+                className="input-field w-full"
+              >
+                {experienceOptions.map((exp) => (
+                  <option key={exp} value={exp}>
+                    {exp}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-text/70 mb-2">
+                財務知識レベル
+              </label>
+              <select
+                value={setupData.financialKnowledge}
+                onChange={(e) =>
+                  setSetupData({
+                    ...setupData,
+                    financialKnowledge: e.target.value as FinancialKnowledge,
+                  })
+                }
+                className="input-field w-full"
+              >
+                {knowledgeOptions.map((knowledge) => (
+                  <option key={knowledge} value={knowledge}>
+                    {knowledge}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 優先目標設定 */}
+      <div className="card mb-6">
+        <h3 className="text-lg font-semibold text-text mb-4">優先改善項目</h3>
+        <p className="text-sm text-text/70 mb-4">
+          重点的に取り組みたい項目を選択してください（複数選択可）
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {goalOptions.map((goal) => (
+            <button
+              key={goal}
+              onClick={() => togglePriorityGoal(goal)}
+              className={`p-3 border rounded-lg text-sm transition-colors ${
+                setupData.priorityGoals.includes(goal)
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border hover:border-primary/50"
+              }`}
+            >
+              {goal}
+            </button>
+          ))}
+        </div>
+        {setupData.priorityGoals.length > 0 && (
+          <div className="mt-3 p-3 bg-sub2/30 rounded-lg">
+            <p className="text-sm text-text/70">
+              選択中: {setupData.priorityGoals.join("、")}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

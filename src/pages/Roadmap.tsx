@@ -9,90 +9,96 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useAuth } from "../contexts/AuthContext";
 
 interface YearlyTarget {
   year: number;
-  revenue: number;
+  netWorth: number; // 純資産に変更
   profit: number;
   employees: number;
   phase: string;
 }
 
 const Roadmap: React.FC = () => {
+  const { userSetup } = useAuth();
+
+  // 初期設定から初期従業員数を取得
+  const initialEmployees = userSetup?.employeeCount || 1;
+
   const [targets, setTargets] = useState<YearlyTarget[]>([
     {
       year: 1,
-      revenue: 30000000,
-      profit: 3000000,
-      employees: 3,
+      netWorth: 5000000,
+      profit: 2000000, // 200万円以上
+      employees: initialEmployees,
       phase: "創業期",
     },
     {
       year: 2,
-      revenue: 50000000,
-      profit: 7500000,
-      employees: 5,
+      netWorth: 7000000,
+      profit: 2000000, // 200万円以上
+      employees: initialEmployees + 1,
       phase: "創業期",
     },
     {
       year: 3,
-      revenue: 80000000,
-      profit: 16000000,
-      employees: 8,
-      phase: "成長期",
+      netWorth: 10000000,
+      profit: 2000000, // 200万円以上
+      employees: initialEmployees + 2,
+      phase: "創業期",
     },
     {
       year: 4,
-      revenue: 120000000,
-      profit: 30000000,
-      employees: 12,
-      phase: "成長期",
+      netWorth: 15000000,
+      profit: 2000000, // 200万円以上
+      employees: initialEmployees + 3,
+      phase: "転換期",
     },
     {
       year: 5,
-      revenue: 180000000,
-      profit: 45000000,
-      employees: 18,
-      phase: "成長期",
+      netWorth: 20000000,
+      profit: 2000000, // 200万円以上
+      employees: initialEmployees + 4,
+      phase: "転換期",
     },
     {
       year: 6,
-      revenue: 250000000,
-      profit: 62500000,
-      employees: 25,
-      phase: "拡大期",
+      netWorth: 26000000,
+      profit: 8000000, // 800万円以上
+      employees: initialEmployees + 6,
+      phase: "成長期",
     },
     {
       year: 7,
-      revenue: 320000000,
-      profit: 80000000,
-      employees: 32,
-      phase: "拡大期",
+      netWorth: 32000000,
+      profit: 8000000, // 800万円以上
+      employees: initialEmployees + 8,
+      phase: "成長期",
     },
     {
       year: 8,
-      revenue: 400000000,
-      profit: 100000000,
-      employees: 40,
-      phase: "拡大期",
+      netWorth: 38000000,
+      profit: 8000000, // 800万円以上
+      employees: initialEmployees + 10,
+      phase: "成長期",
     },
     {
       year: 9,
-      revenue: 480000000,
-      profit: 120000000,
-      employees: 48,
-      phase: "安定期",
+      netWorth: 44000000,
+      profit: 8000000, // 800万円以上
+      employees: initialEmployees + 12,
+      phase: "成長期",
     },
     {
       year: 10,
-      revenue: 500000000,
-      profit: 125000000,
-      employees: 50,
-      phase: "安定期",
+      netWorth: 50000000, // 5000万円の目標
+      profit: 8000000, // 800万円以上
+      employees: initialEmployees + 15,
+      phase: "成長期",
     },
   ]);
 
-  const phases = ["創業期", "成長期", "拡大期", "安定期"];
+  const phases = ["創業期", "転換期", "成長期"];
 
   const handleTargetChange = (
     year: number,
@@ -108,7 +114,7 @@ const Roadmap: React.FC = () => {
 
   const runSimulation = () => {
     // シミュレーションロジック（実際の実装では複雑な計算を行う）
-    alert("シミュレーションが完了しました。KPIが自動設定されました。");
+    alert("シミュレーションが完了しました。目標を再設定しました。");
   };
 
   return (
@@ -148,15 +154,15 @@ const Roadmap: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm text-text/70 mb-1">
-                      売上（万円）
+                      純資産（万円）
                     </label>
                     <input
                       type="number"
-                      value={target.revenue / 10000}
+                      value={target.netWorth / 10000}
                       onChange={(e) =>
                         handleTargetChange(
                           target.year,
-                          "revenue",
+                          "netWorth",
                           Number(e.target.value) * 10000
                         )
                       }
@@ -223,10 +229,10 @@ const Roadmap: React.FC = () => {
 
         {/* 可視化エリア */}
         <div className="space-y-6">
-          {/* 売上推移グラフ */}
+          {/* 純資産推移グラフ */}
           <div className="card">
             <h3 className="text-lg font-semibold text-text mb-4">
-              売上推移予測
+              純資産推移予測
             </h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={targets}>
@@ -234,20 +240,18 @@ const Roadmap: React.FC = () => {
                 <XAxis dataKey="year" stroke="#333333" />
                 <YAxis
                   stroke="#333333"
-                  tickFormatter={(value) =>
-                    `¥${(value / 100000000).toFixed(1)}億`
-                  }
+                  tickFormatter={(value) => `${(value / 10000).toFixed(0)}万`}
                 />
                 <Tooltip
                   formatter={(value: number) => [
-                    `¥${(value / 10000).toLocaleString()}万`,
+                    `${(value / 10000).toLocaleString()}万円`,
                     "",
                   ]}
                   labelStyle={{ color: "#333333" }}
                 />
                 <Line
                   type="monotone"
-                  dataKey="revenue"
+                  dataKey="netWorth"
                   stroke="#67BACA"
                   strokeWidth={3}
                   dot={{ fill: "#67BACA", strokeWidth: 2, r: 4 }}

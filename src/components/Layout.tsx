@@ -8,7 +8,10 @@ import {
   Settings,
   Menu,
   X,
+  LogOut,
+  User,
 } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -17,6 +20,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const navigation = [
     { name: "ダッシュボード", href: "/mietoru", icon: Home },
@@ -42,12 +46,46 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               ミエトル
             </h1>
           </div>
-          <Link
-            to="/mietoru/settings"
-            className="p-2 rounded-md text-text hover:bg-sub2 transition-colors"
-          >
-            <Settings className="h-6 w-6" />
-          </Link>
+
+          <div className="flex items-center space-x-4">
+            {/* ユーザー情報 */}
+            <div className="hidden sm:flex items-center space-x-2 px-3 py-1 bg-sub2 rounded-lg">
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="h-6 w-6 rounded-full"
+                />
+              ) : (
+                <User className="h-5 w-5 text-text" />
+              )}
+              <span className="text-sm font-medium text-text">
+                {user?.name}
+              </span>
+            </div>
+
+            {/* 設定ボタン */}
+            <Link
+              to="/mietoru/settings"
+              className="p-2 rounded-md text-text hover:bg-sub2 transition-colors"
+              title="設定"
+            >
+              <Settings className="h-6 w-6" />
+            </Link>
+
+            {/* ログアウトボタン */}
+            <button
+              onClick={() => {
+                if (window.confirm("ログアウトしますか？")) {
+                  logout();
+                }
+              }}
+              className="p-2 rounded-md text-text hover:bg-sub2 transition-colors"
+              title="ログアウト"
+            >
+              <LogOut className="h-6 w-6" />
+            </button>
+          </div>
         </div>
       </header>
 
