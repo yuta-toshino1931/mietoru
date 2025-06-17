@@ -8,18 +8,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
-
-interface MonthlyData {
-  month: string;
-  target: number;
-  actual: number;
-  profit: number;
-  profitTarget: number;
-}
 
 const BudgetActual: React.FC = () => {
   const { userSetup } = useAuth();

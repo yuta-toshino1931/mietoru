@@ -11,7 +11,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -235,7 +234,7 @@ const Dashboard: React.FC = () => {
                     paddingAngle={2}
                     dataKey="value"
                   >
-                    {currentYearData.map((entry, index) => (
+                    {currentYearData.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}
@@ -274,7 +273,7 @@ const Dashboard: React.FC = () => {
                     paddingAngle={2}
                     dataKey="value"
                   >
-                    {tenYearData.map((entry, index) => (
+                    {tenYearData.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}

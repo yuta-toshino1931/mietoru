@@ -32,7 +32,7 @@ const Setup: React.FC = () => {
 
   // ログインしていない場合はリダイレクト
   if (!user && !isLoading) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/mietoru/login" replace />;
   }
 
   // 既に設定完了済みの場合はダッシュボードへ

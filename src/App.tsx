@@ -29,11 +29,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/mietoru/login" replace />;
   }
 
   if (!user.isSetupComplete) {
-    return <Navigate to="/setup" replace />;
+    return <Navigate to="/mietoru/setup" replace />;
   }
 
   return <>{children}</>;
@@ -44,10 +44,10 @@ const AppContent: React.FC = () => {
   return (
     <Routes>
       {/* ログイン画面 */}
-      <Route path="/login" element={<Login />} />
+      <Route path="/mietoru/login" element={<Login />} />
 
       {/* 初期設定画面 */}
-      <Route path="/setup" element={<Setup />} />
+      <Route path="/mietoru/setup" element={<Setup />} />
 
       {/* 認証が必要なページ */}
       <Route
@@ -102,7 +102,7 @@ const AppContent: React.FC = () => {
       />
 
       {/* デフォルトリダイレクト */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Navigate to="/mietoru/login" replace />} />
     </Routes>
   );
 };

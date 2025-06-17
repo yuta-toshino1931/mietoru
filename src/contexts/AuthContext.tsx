@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, _password: string): Promise<void> => {
     setIsLoading(true);
     try {
       // 実際のアプリでは、APIを呼び出してログイン処理
@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const loginWithGoogle = async (idToken: string): Promise<void> => {
+  const loginWithGoogle = async (_idToken: string): Promise<void> => {
     setIsLoading(true);
     try {
       // Google認証処理のデモ実装

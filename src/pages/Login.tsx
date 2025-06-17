@@ -12,7 +12,10 @@ const Login: React.FC = () => {
   // すでにログイン済みの場合はリダイレクト
   if (user && !isLoading) {
     return (
-      <Navigate to={user.isSetupComplete ? "/mietoru" : "/setup"} replace />
+      <Navigate
+        to={user.isSetupComplete ? "/mietoru" : "/mietoru/setup"}
+        replace
+      />
     );
   }
 
