@@ -16,7 +16,6 @@ import type {
   Industry,
   BusinessExperience,
   FinancialKnowledge,
-  PriorityGoal,
 } from "../types";
 
 interface Task {
@@ -44,7 +43,6 @@ const Settings: React.FC = () => {
   const [userInfo, setUserInfo] = useState({
     name: user?.name || "田中太郎",
     email: user?.email || "tanaka@example.com",
-    company: "株式会社サンプル",
     phone: "03-1234-5678",
   });
 
@@ -98,17 +96,6 @@ const Settings: React.FC = () => {
     "上級レベル",
   ];
 
-  const goalOptions: PriorityGoal[] = [
-    "売上向上",
-    "利益改善",
-    "コスト削減",
-    "キャッシュフロー改善",
-    "投資計画",
-    "税務対策",
-    "資金調達",
-    "事業拡大",
-  ];
-
   // 設定データを初期化
   useEffect(() => {
     if (userSetup) {
@@ -149,16 +136,6 @@ const Settings: React.FC = () => {
     alert("設定を保存しました。");
   };
 
-  const togglePriorityGoal = (goal: PriorityGoal) => {
-    if (!setupData) return;
-
-    const newGoals = setupData.priorityGoals.includes(goal)
-      ? setupData.priorityGoals.filter((g) => g !== goal)
-      : [...setupData.priorityGoals, goal];
-
-    setSetupData({ ...setupData, priorityGoals: newGoals });
-  };
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("ja-JP", {
       style: "currency",
@@ -179,11 +156,11 @@ const Settings: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-text">設定</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text">設定</h1>
         <button
           onClick={handleSaveSettings}
-          className="btn-primary flex items-center space-x-2"
+          className="btn-primary flex items-center justify-center space-x-2 text-sm"
         >
           <Save className="h-4 w-4" />
           <span>設定を保存</span>
@@ -191,15 +168,32 @@ const Settings: React.FC = () => {
       </div>
 
       {/* 事業基本情報設定 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
         {/* 基本情報 */}
         <div className="card">
           <div className="flex items-center space-x-2 mb-4">
-            <Building className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-text">事業基本情報</h3>
+            <Building className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              事業基本情報
+            </h3>
           </div>
 
           <div className="space-y-4">
+            <div>
+              <label className="block text-sm text-text/70 mb-2">
+                会社名（任意）
+              </label>
+              <input
+                type="text"
+                value={setupData.companyName || ""}
+                onChange={(e) =>
+                  setSetupData({ ...setupData, companyName: e.target.value })
+                }
+                className="input-field w-full"
+                placeholder="会社名を入力してください（任意）"
+              />
+            </div>
+
             <div>
               <label className="block text-sm text-text/70 mb-2">
                 企業規模
@@ -212,7 +206,14 @@ const Settings: React.FC = () => {
                     companySize: e.target.value as CompanySize,
                   })
                 }
-                className="input-field w-full"
+                className="input-field w-full pr-8 appearance-none bg-white"
+                style={{
+                  backgroundImage:
+                    'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "calc(100% - 4px) center",
+                  backgroundSize: "16px",
+                }}
               >
                 {companyTypes.map((type) => (
                   <option key={type} value={type}>
@@ -232,7 +233,14 @@ const Settings: React.FC = () => {
                     industry: e.target.value as Industry,
                   })
                 }
-                className="input-field w-full"
+                className="input-field w-full pr-8 appearance-none bg-white"
+                style={{
+                  backgroundImage:
+                    'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "calc(100% - 4px) center",
+                  backgroundSize: "16px",
+                }}
               >
                 {industries.map((industry) => (
                   <option key={industry} value={industry}>
@@ -242,46 +250,33 @@ const Settings: React.FC = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm text-text/70 mb-2">
-                  事業年度開始月
-                </label>
-                <select
-                  value={setupData.fiscalYearStartMonth}
-                  onChange={(e) =>
-                    setSetupData({
-                      ...setupData,
-                      fiscalYearStartMonth: parseInt(e.target.value),
-                    })
-                  }
-                  className="input-field w-full"
-                >
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                    <option key={month} value={month}>
-                      {month}月
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm text-text/70 mb-2">
-                  従業員数
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={setupData.employeeCount}
-                  onChange={(e) =>
-                    setSetupData({
-                      ...setupData,
-                      employeeCount: parseInt(e.target.value) || 1,
-                    })
-                  }
-                  className="input-field w-full"
-                />
-              </div>
+            <div>
+              <label className="block text-sm text-text/70 mb-2">
+                事業年度開始月
+              </label>
+              <select
+                value={setupData.fiscalYearStartMonth}
+                onChange={(e) =>
+                  setSetupData({
+                    ...setupData,
+                    fiscalYearStartMonth: parseInt(e.target.value),
+                  })
+                }
+                className="input-field w-full pr-8 appearance-none bg-white"
+                style={{
+                  backgroundImage:
+                    'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "calc(100% - 4px) center",
+                  backgroundSize: "16px",
+                }}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                  <option key={month} value={month}>
+                    {month}月
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -289,8 +284,10 @@ const Settings: React.FC = () => {
         {/* 財務・目標設定 */}
         <div className="card">
           <div className="flex items-center space-x-2 mb-4">
-            <Target className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-text">財務・目標設定</h3>
+            <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              財務・目標設定
+            </h3>
           </div>
 
           <div className="space-y-4">
@@ -348,7 +345,14 @@ const Settings: React.FC = () => {
                     businessExperience: e.target.value as BusinessExperience,
                   })
                 }
-                className="input-field w-full"
+                className="input-field w-full pr-8 appearance-none bg-white"
+                style={{
+                  backgroundImage:
+                    'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "calc(100% - 4px) center",
+                  backgroundSize: "16px",
+                }}
               >
                 {experienceOptions.map((exp) => (
                   <option key={exp} value={exp}>
@@ -370,7 +374,14 @@ const Settings: React.FC = () => {
                     financialKnowledge: e.target.value as FinancialKnowledge,
                   })
                 }
-                className="input-field w-full"
+                className="input-field w-full pr-8 appearance-none bg-white"
+                style={{
+                  backgroundImage:
+                    'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "calc(100% - 4px) center",
+                  backgroundSize: "16px",
+                }}
               >
                 {knowledgeOptions.map((knowledge) => (
                   <option key={knowledge} value={knowledge}>
@@ -383,42 +394,12 @@ const Settings: React.FC = () => {
         </div>
       </div>
 
-      {/* 優先目標設定 */}
-      <div className="card mb-6">
-        <h3 className="text-lg font-semibold text-text mb-4">優先改善項目</h3>
-        <p className="text-sm text-text/70 mb-4">
-          重点的に取り組みたい項目を選択してください（複数選択可）
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {goalOptions.map((goal) => (
-            <button
-              key={goal}
-              onClick={() => togglePriorityGoal(goal)}
-              className={`p-3 border rounded-lg text-sm transition-colors ${
-                setupData.priorityGoals.includes(goal)
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-border hover:border-primary/50"
-              }`}
-            >
-              {goal}
-            </button>
-          ))}
-        </div>
-        {setupData.priorityGoals.length > 0 && (
-          <div className="mt-3 p-3 bg-sub2/30 rounded-lg">
-            <p className="text-sm text-text/70">
-              選択中: {setupData.priorityGoals.join("、")}
-            </p>
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* 月次タスク通知設定 */}
         <div className="card">
           <div className="flex items-center space-x-2 mb-4">
-            <Bell className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-text">
+            <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold text-text">
               月次タスク通知設定
             </h3>
           </div>
@@ -471,7 +452,14 @@ const Settings: React.FC = () => {
                   <select
                     value={newTaskDay}
                     onChange={(e) => setNewTaskDay(Number(e.target.value))}
-                    className="input-field"
+                    className="input-field pr-8 appearance-none bg-white"
+                    style={{
+                      backgroundImage:
+                        'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "calc(100% - 4px) center",
+                      backgroundSize: "16px",
+                    }}
                   >
                     {Array.from({ length: 28 }, (_, i) => (
                       <option key={i + 1} value={i + 1}>
@@ -495,7 +483,9 @@ const Settings: React.FC = () => {
 
         {/* 通知方法設定 */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-text mb-4">通知方法</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-text mb-4">
+            通知方法
+          </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -537,12 +527,14 @@ const Settings: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* ユーザー情報設定 */}
         <div className="card">
           <div className="flex items-center space-x-2 mb-4">
-            <User className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-text">ユーザー情報</h3>
+            <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              ユーザー情報
+            </h3>
           </div>
 
           <div className="space-y-4">
@@ -571,17 +563,6 @@ const Settings: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm text-text/70 mb-1">会社名</label>
-              <input
-                type="text"
-                value={userInfo.company}
-                onChange={(e) =>
-                  setUserInfo({ ...userInfo, company: e.target.value })
-                }
-                className="input-field w-full"
-              />
-            </div>
-            <div>
               <label className="block text-sm text-text/70 mb-1">
                 電話番号
               </label>
@@ -600,8 +581,10 @@ const Settings: React.FC = () => {
         {/* 弥生会計連携設定 */}
         <div className="card">
           <div className="flex items-center space-x-2 mb-4">
-            <Database className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-text">弥生会計連携</h3>
+            <Database className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              弥生会計連携
+            </h3>
           </div>
 
           <div className="space-y-4">
@@ -654,7 +637,14 @@ const Settings: React.FC = () => {
                       syncFrequency: e.target.value,
                     })
                   }
-                  className="input-field w-full"
+                  className="input-field w-full pr-8 appearance-none bg-white"
+                  style={{
+                    backgroundImage:
+                      'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "calc(100% - 4px) center",
+                    backgroundSize: "16px",
+                  }}
                 >
                   <option value="hourly">1時間ごと</option>
                   <option value="daily">1日ごと</option>

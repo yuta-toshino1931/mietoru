@@ -66,14 +66,18 @@ const Support: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-text">相談・サポート</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-text">
+        相談・サポート
+      </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* 税理士相談予約 */}
         <div className="card">
           <div className="flex items-center space-x-2 mb-4">
-            <Calendar className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-text">税理士相談予約</h3>
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              税理士相談予約
+            </h3>
           </div>
 
           <div className="space-y-4">
@@ -123,8 +127,10 @@ const Support: React.FC = () => {
         {/* チャット機能 */}
         <div className="card">
           <div className="flex items-center space-x-2 mb-4">
-            <MessageCircle className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-text">チャット相談</h3>
+            <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              チャット相談
+            </h3>
           </div>
 
           <div className="border border-border rounded-lg h-64 p-3 mb-4 overflow-y-auto bg-sub2/30">
@@ -163,7 +169,9 @@ const Support: React.FC = () => {
 
       {/* よくある質問 */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-text mb-4">よくある質問</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-text mb-4">
+          よくある質問
+        </h3>
         <div className="space-y-4">
           {faqData.map((faq, index) => (
             <details key={index} className="border border-border rounded-lg">
@@ -178,7 +186,9 @@ const Support: React.FC = () => {
 
       {/* 相談履歴 */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-text mb-4">過去の相談履歴</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-text mb-4">
+          過去の相談履歴
+        </h3>
         <div className="space-y-3">
           {consultationHistory.map((consultation, index) => (
             <div

@@ -21,8 +21,9 @@ export interface KPIData {
 // ロードマップ関連の型定義
 export interface YearlyTarget {
   year: number;
-  revenue: number;
-  profit: number;
+  netWorth: number; // 純資産
+  revenue: number; // 売上
+  profit: number; // 事業の利益
   employees: number;
   phase: BusinessPhase;
 }
@@ -35,6 +36,7 @@ export interface Task {
   name: string;
   day: number;
   enabled: boolean;
+  completed?: boolean; // タスクの完了状態を追加
   type: TaskType;
 }
 
@@ -158,6 +160,7 @@ export interface AuthResponse {
 export interface InitialSetup {
   currentAssets: number;
   companySize: CompanySize;
+  companyName?: string; // 会社名を追加（任意項目）
   fiscalYearStartMonth: number;
   employeeCount: number;
   industry: Industry;

@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -18,6 +19,9 @@ const BudgetActual: React.FC = () => {
   const [actualRevenue, setActualRevenue] = useState(2350000);
   const [actualProfit, setActualProfit] = useState(485000);
   const [viewPeriod, setViewPeriod] = useState<6 | 12>(12);
+  const [activeChart, setActiveChart] = useState<"revenue" | "profit">(
+    "revenue"
+  );
 
   // 事業年度開始月（初期設定から取得、デフォルトは4月）
   const fiscalYearStart = userSetup?.fiscalYearStartMonth || 4;
@@ -72,23 +76,26 @@ const BudgetActual: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-text">予実管理</h1>
-        <div className="flex space-x-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text">予実管理</h1>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             onClick={handleYoyoImport}
-            className="btn-secondary flex items-center space-x-2"
+            className="btn-secondary flex items-center justify-center space-x-2 text-sm"
           >
             <RefreshCw className="h-4 w-4" />
-            <span>弥生会計から取得</span>
+            <span className="hidden sm:inline">弥生会計から取得</span>
+            <span className="sm:hidden">弥生取得</span>
           </button>
-          <button className="btn-secondary flex items-center space-x-2">
+          <button className="btn-secondary flex items-center justify-center space-x-2 text-sm">
             <Upload className="h-4 w-4" />
-            <span>CSVアップロード</span>
+            <span className="hidden sm:inline">CSVアップロード</span>
+            <span className="sm:hidden">CSV</span>
           </button>
-          <button className="btn-secondary flex items-center space-x-2">
+          <button className="btn-secondary flex items-center justify-center space-x-2 text-sm">
             <Download className="h-4 w-4" />
-            <span>データ出力</span>
+            <span className="hidden sm:inline">データ出力</span>
+            <span className="sm:hidden">出力</span>
           </button>
         </div>
       </div>
@@ -120,10 +127,12 @@ const BudgetActual: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* 実績入力フォーム */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-text mb-4">月次実績入力</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-text mb-4">
+            月次実績入力
+          </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -201,15 +210,44 @@ const BudgetActual: React.FC = () => {
         </div>
 
         {/* 予実比較グラフ */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-6">
           <div className="card">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-text">売上実績推移</h3>
-              <div className="flex space-x-2">
+            {/* グラフ切り替えボタン */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={() => setActiveChart("revenue")}
+                  className={`px-4 py-2 rounded transition-colors ${
+                    activeChart === "revenue"
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  売上実績推移
+                </button>
+                <button
+                  onClick={() => setActiveChart("profit")}
+                  className={`px-4 py-2 rounded transition-colors ${
+                    activeChart === "profit"
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  月次利益推移
+                </button>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
-                  className="text-sm border border-border rounded px-2 py-1"
+                  className="text-sm border border-border rounded px-2 py-1 pr-8 appearance-none bg-white"
+                  style={{
+                    backgroundImage:
+                      'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "calc(100% - 4px) center",
+                    backgroundSize: "16px",
+                  }}
                 >
                   <option value={2024}>2024年度</option>
                   <option value={2023}>2023年度</option>
@@ -220,75 +258,100 @@ const BudgetActual: React.FC = () => {
                   onChange={(e) =>
                     setViewPeriod(Number(e.target.value) as 6 | 12)
                   }
-                  className="text-sm border border-border rounded px-2 py-1"
+                  className="text-sm border border-border rounded px-2 py-1 pr-8 appearance-none bg-white"
+                  style={{
+                    backgroundImage:
+                      'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "calc(100% - 4px) center",
+                    backgroundSize: "16px",
+                  }}
                 >
                   <option value={6}>6ヶ月</option>
                   <option value={12}>12ヶ月</option>
                 </select>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
-                <XAxis dataKey="month" stroke="#333333" />
-                <YAxis
-                  stroke="#333333"
-                  tickFormatter={(value) => `${(value / 10000).toFixed(0)}万`}
-                />
-                <Tooltip
-                  formatter={(value: number) => [
-                    `${value.toLocaleString()}円`,
-                    "",
-                  ]}
-                  labelStyle={{ color: "#333333" }}
-                />
-                <Bar dataKey="target" fill="#B3DBC0" name="目標" />
-                <Bar dataKey="actual" fill="#67BACA" name="実績" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
 
-          <div className="card">
-            <h3 className="text-lg font-semibold text-text mb-4">
-              月次利益推移
-            </h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
-                <XAxis dataKey="month" stroke="#333333" />
-                <YAxis
-                  stroke="#333333"
-                  tickFormatter={(value) => `${(value / 10000).toFixed(0)}万`}
-                />
-                <Tooltip
-                  formatter={(value: number) => [
-                    `${value.toLocaleString()}円`,
-                    "",
-                  ]}
-                  labelStyle={{ color: "#333333" }}
-                />
-                <Bar dataKey="profitTarget" fill="#B3DBC0" name="目標" />
-                <Bar dataKey="profit" fill="#67BACA" name="実績" />
-              </BarChart>
-            </ResponsiveContainer>
+            {/* 売上実績推移グラフ */}
+            {activeChart === "revenue" && (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
+                  <XAxis dataKey="month" stroke="#333333" />
+                  <YAxis
+                    stroke="#333333"
+                    tickFormatter={(value) => `${(value / 10000).toFixed(0)}万`}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => [
+                      `${value.toLocaleString()}円`,
+                      "",
+                    ]}
+                    labelStyle={{ color: "#333333" }}
+                  />
+                  <Legend />
+                  <Bar dataKey="target" fill="#B3DBC0" name="目標" />
+                  <Bar dataKey="actual" fill="#67BACA" name="実績" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+
+            {/* 月次利益推移グラフ */}
+            {activeChart === "profit" && (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
+                  <XAxis dataKey="month" stroke="#333333" />
+                  <YAxis
+                    stroke="#333333"
+                    tickFormatter={(value) => `${(value / 10000).toFixed(0)}万`}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => [
+                      `${value.toLocaleString()}円`,
+                      "",
+                    ]}
+                    labelStyle={{ color: "#333333" }}
+                  />
+                  <Legend />
+                  <Bar dataKey="profitTarget" fill="#B3DBC0" name="目標" />
+                  <Bar dataKey="profit" fill="#67BACA" name="実績" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>
 
       {/* 詳細比較表 */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-text mb-4">詳細比較表</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-text mb-4">
+          詳細比較表
+        </h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-3 px-2">月</th>
-                <th className="text-right py-3 px-2">売上目標</th>
-                <th className="text-right py-3 px-2">売上実績</th>
-                <th className="text-right py-3 px-2">売上達成率</th>
-                <th className="text-right py-3 px-2">利益目標</th>
-                <th className="text-right py-3 px-2">利益実績</th>
-                <th className="text-right py-3 px-2">利益達成率</th>
+                <th className="text-left py-2 sm:py-3 px-1 sm:px-2">月</th>
+                <th className="text-right py-2 sm:py-3 px-1 sm:px-2 whitespace-nowrap">
+                  売上目標
+                </th>
+                <th className="text-right py-2 sm:py-3 px-1 sm:px-2 whitespace-nowrap">
+                  売上実績
+                </th>
+                <th className="text-right py-2 sm:py-3 px-1 sm:px-2 whitespace-nowrap">
+                  売上達成率
+                </th>
+                <th className="text-right py-2 sm:py-3 px-1 sm:px-2 whitespace-nowrap">
+                  利益目標
+                </th>
+                <th className="text-right py-2 sm:py-3 px-1 sm:px-2 whitespace-nowrap">
+                  利益実績
+                </th>
+                <th className="text-right py-2 sm:py-3 px-1 sm:px-2 whitespace-nowrap">
+                  利益達成率
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -302,15 +365,17 @@ const BudgetActual: React.FC = () => {
                 ).toFixed(1);
                 return (
                   <tr key={index} className="border-b border-border/50">
-                    <td className="py-3 px-2 font-medium">{data.month}</td>
-                    <td className="py-3 px-2 text-right">
+                    <td className="py-2 sm:py-3 px-1 sm:px-2 font-medium">
+                      {data.month}
+                    </td>
+                    <td className="py-2 sm:py-3 px-1 sm:px-2 text-right">
                       {data.target.toLocaleString()}
                     </td>
-                    <td className="py-3 px-2 text-right">
+                    <td className="py-2 sm:py-3 px-1 sm:px-2 text-right">
                       {data.actual.toLocaleString()}
                     </td>
                     <td
-                      className={`py-3 px-2 text-right font-medium ${
+                      className={`py-2 sm:py-3 px-1 sm:px-2 text-right font-medium ${
                         Number(revenueRate) >= 100
                           ? "text-success"
                           : Number(revenueRate) >= 90
@@ -320,14 +385,14 @@ const BudgetActual: React.FC = () => {
                     >
                       {revenueRate}%
                     </td>
-                    <td className="py-3 px-2 text-right">
+                    <td className="py-2 sm:py-3 px-1 sm:px-2 text-right">
                       {data.profitTarget.toLocaleString()}
                     </td>
-                    <td className="py-3 px-2 text-right">
+                    <td className="py-2 sm:py-3 px-1 sm:px-2 text-right">
                       {data.profit.toLocaleString()}
                     </td>
                     <td
-                      className={`py-3 px-2 text-right font-medium ${
+                      className={`py-2 sm:py-3 px-1 sm:px-2 text-right font-medium ${
                         Number(profitRate) >= 100
                           ? "text-success"
                           : Number(profitRate) >= 90

@@ -17,6 +17,7 @@ const Setup: React.FC = () => {
   const [setupData, setSetupData] = useState<InitialSetup>({
     currentAssets: 0,
     companySize: "個人事業主",
+    companyName: "",
     fiscalYearStartMonth: 4,
     employeeCount: 1,
     industry: "IT・ソフトウェア",
@@ -63,12 +64,6 @@ const Setup: React.FC = () => {
       id: 3,
       title: "目標設定",
       description: "優先したい項目を選択してください",
-      completed: false,
-    },
-    {
-      id: 4,
-      title: "完了",
-      description: "設定内容を確認してください",
       completed: false,
     },
   ];
@@ -160,23 +155,40 @@ const Setup: React.FC = () => {
         return (
           <div className="space-y-6">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                会社名（任意）
+              </label>
+              <input
+                type="text"
+                value={setupData.companyName || ""}
+                onChange={(e) =>
+                  setSetupData({ ...setupData, companyName: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
+                placeholder="会社名を入力してください（任意）"
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 企業規模
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {companyTypes.map((type) => (
                   <button
                     key={type}
                     onClick={() =>
                       setSetupData({ ...setupData, companySize: type })
                     }
-                    className={`p-4 border rounded-lg text-left transition-colors ${
+                    className={`p-3 sm:p-4 border rounded-lg text-left transition-colors ${
                       setupData.companySize === type
                         ? "border-primary bg-primary/5 text-primary"
                         : "border-gray-300 hover:border-gray-400"
                     }`}
                   >
-                    <div className="font-medium">{type}</div>
+                    <div className="text-sm sm:text-base font-medium">
+                      {type}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -204,7 +216,7 @@ const Setup: React.FC = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   事業年度開始月
@@ -362,62 +374,7 @@ const Setup: React.FC = () => {
           </div>
         );
 
-      case 3: // 目標設定
-        return (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                優先したい改善項目（複数選択可）
-              </label>
-              <p className="text-sm text-gray-500 mb-4">
-                特に重点的に取り組みたい項目を選択してください
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {goalOptions.map((goal) => (
-                  <button
-                    key={goal}
-                    onClick={() => togglePriorityGoal(goal)}
-                    className={`p-3 border rounded-lg text-sm transition-colors ${
-                      setupData.priorityGoals.includes(goal)
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
-                  >
-                    {goal}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-green-50 rounded-lg p-4">
-              <h4 className="font-medium text-green-900 mb-2">
-                あなたの長期目標
-              </h4>
-              <div className="text-green-800 text-sm space-y-1">
-                <p>
-                  <strong>目標年:</strong> {setupData.longTermGoal.targetYear}年
-                </p>
-                <p>
-                  <strong>目標純資産:</strong>{" "}
-                  {formatCurrency(setupData.longTermGoal.targetNetWorth)}
-                </p>
-                <p>
-                  <strong>期間:</strong> 10年間
-                </p>
-                <p>
-                  <strong>必要な年間資産増加額:</strong>{" "}
-                  {formatCurrency(
-                    (setupData.longTermGoal.targetNetWorth -
-                      setupData.currentAssets) /
-                      10
-                  )}
-                </p>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 4: // 完了
+      case 3: // 完了
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -448,16 +405,16 @@ const Setup: React.FC = () => {
               <h4 className="font-medium text-gray-900">設定内容の確認</h4>
               <div className="space-y-2">
                 <p>
+                  <span className="text-gray-600">会社名:</span>{" "}
+                  {setupData.companyName}
+                </p>
+                <p>
                   <span className="text-gray-600">企業規模:</span>{" "}
                   {setupData.companySize}
                 </p>
                 <p>
                   <span className="text-gray-600">業界:</span>{" "}
                   {setupData.industry}
-                </p>
-                <p>
-                  <span className="text-gray-600">従業員数:</span>{" "}
-                  {setupData.employeeCount}名
                 </p>
                 <p>
                   <span className="text-gray-600">現在の資産:</span>{" "}
@@ -475,12 +432,6 @@ const Setup: React.FC = () => {
                   <span className="text-gray-600">10年後の目標:</span>{" "}
                   {formatCurrency(setupData.longTermGoal.targetNetWorth)}
                 </p>
-                {setupData.priorityGoals.length > 0 && (
-                  <p>
-                    <span className="text-gray-600">優先項目:</span>{" "}
-                    {setupData.priorityGoals.join("、")}
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -500,26 +451,28 @@ const Setup: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/5 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/5 py-4 sm:py-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* ヘッダー */}
-        <div className="text-center mb-8">
-          <div className="mx-auto h-12 w-12 bg-primary rounded-full flex items-center justify-center mb-4">
-            <span className="text-white text-xl font-bold">ミ</span>
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="mx-auto h-10 w-10 sm:h-12 sm:w-12 bg-primary rounded-full flex items-center justify-center mb-4">
+            <span className="text-white text-lg sm:text-xl font-bold">ミ</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">初期設定</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            初期設定
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-2">
             あなたに最適化された経営サポートのための設定を行います
           </p>
         </div>
 
         {/* プログレスバー */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-2">
             {steps.map((step, index) => (
               <div
                 key={step.id}
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-sm font-medium ${
                   index <= currentStep
                     ? "bg-primary text-white"
                     : "bg-gray-200 text-gray-600"
@@ -535,28 +488,30 @@ const Setup: React.FC = () => {
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
             />
           </div>
-          <p className="text-sm text-gray-600 mt-2 text-center">
+          <p className="text-xs sm:text-sm text-gray-600 mt-2 text-center">
             ステップ {currentStep + 1} / {steps.length}:{" "}
             {steps[currentStep].title}
           </p>
         </div>
 
         {/* メインコンテンツ */}
-        <div className="bg-white rounded-lg shadow-xl p-8 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <div className="bg-white rounded-lg shadow-xl p-4 sm:p-8 mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
             {steps[currentStep].title}
           </h2>
-          <p className="text-gray-600 mb-6">{steps[currentStep].description}</p>
+          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+            {steps[currentStep].description}
+          </p>
 
           {renderStepContent()}
         </div>
 
         {/* ナビゲーションボタン */}
-        <div className="flex justify-between">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
           <button
             onClick={handlePrev}
             disabled={currentStep === 0}
-            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 sm:px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
             戻る
           </button>
@@ -564,14 +519,14 @@ const Setup: React.FC = () => {
           {currentStep < steps.length - 1 ? (
             <button
               onClick={handleNext}
-              className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+              className="px-4 sm:px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 text-sm sm:text-base"
             >
               次へ
             </button>
           ) : (
             <button
               onClick={handleComplete}
-              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              className="px-4 sm:px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm sm:text-base"
             >
               設定完了
             </button>

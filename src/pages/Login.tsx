@@ -64,9 +64,11 @@ const Login: React.FC = () => {
           </p>
         </div>
         {/* デモ用の説明 */}
-        <div className="text-center text-xs text-gray-500 bg-white/80 rounded-lg p-4">
+        <div className="text-center text-xs sm:text-sm text-gray-500 bg-white/80 rounded-lg p-3 sm:p-4">
           <p className="font-medium mb-2">デモ版をお試しください</p>
-          <p>任意のメールアドレスとパスワードでログインできます</p>
+          <p className="mb-1">
+            任意のメールアドレスとパスワードでログインできます
+          </p>
           <p>またはGoogleボタンをクリックしてください</p>
         </div>
 
