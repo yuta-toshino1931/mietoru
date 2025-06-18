@@ -7,7 +7,6 @@ import type {
   Industry,
   BusinessExperience,
   FinancialKnowledge,
-  PriorityGoal,
   SetupStep,
 } from "../types";
 
@@ -104,17 +103,6 @@ const Setup: React.FC = () => {
     "上級レベル",
   ];
 
-  const goalOptions: PriorityGoal[] = [
-    "売上向上",
-    "利益改善",
-    "コスト削減",
-    "キャッシュフロー改善",
-    "投資計画",
-    "税務対策",
-    "資金調達",
-    "事業拡大",
-  ];
-
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -131,14 +119,6 @@ const Setup: React.FC = () => {
     // 実際のアプリでは、設定データをAPIに送信
     console.log("Setup completed:", setupData);
     completeSetup(setupData);
-  };
-
-  const togglePriorityGoal = (goal: PriorityGoal) => {
-    const newGoals = setupData.priorityGoals.includes(goal)
-      ? setupData.priorityGoals.filter((g) => g !== goal)
-      : [...setupData.priorityGoals, goal];
-
-    setSetupData({ ...setupData, priorityGoals: newGoals });
   };
 
   const formatCurrency = (value: number) => {
