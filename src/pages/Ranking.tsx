@@ -8,19 +8,11 @@ import {
   Users,
   Award,
   Star,
-  ChevronDown,
   Filter,
   Eye,
   EyeOff,
 } from "lucide-react";
-import type {
-  CompanyRanking,
-  Badge,
-  Award as AwardType,
-  RankingType,
-  BenchmarkData,
-  UserRankingData,
-} from "../types";
+import type { CompanyRanking, RankingType, UserRankingData } from "../types";
 
 // サンプルデータ
 const sampleUserRankingData: UserRankingData = {
