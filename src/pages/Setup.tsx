@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { Trophy, Shield, Users, Info } from "lucide-react";
 import type {
   InitialSetup,
   CompanySize,
@@ -27,6 +28,12 @@ const Setup: React.FC = () => {
       targetYear: new Date().getFullYear() + 10,
       targetNetWorth: 50000000, // 5000万円
       description: "10年で純資産5000万円を達成する",
+    },
+    rankingSettings: {
+      isParticipating: true,
+      isAnonymous: false,
+      allowBenchmarking: true,
+      notificationEnabled: true,
     },
   });
 
@@ -61,8 +68,14 @@ const Setup: React.FC = () => {
     },
     {
       id: 3,
-      title: "目標設定",
-      description: "優先したい項目を選択してください",
+      title: "ランキング設定",
+      description: "ランキング・表彰機能の設定を行います",
+      completed: false,
+    },
+    {
+      id: 4,
+      title: "設定完了",
+      description: "設定内容を確認して完了します",
       completed: false,
     },
   ];
@@ -354,7 +367,221 @@ const Setup: React.FC = () => {
           </div>
         );
 
-      case 3: // 完了
+      case 3: // ランキング設定
+        return (
+          <div className="space-y-6">
+            {/* ランキング機能の説明 */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <Info className="h-5 w-5 text-blue-600" />
+                <h4 className="font-medium text-blue-900">
+                  ランキング・表彰機能について
+                </h4>
+              </div>
+              <p className="text-blue-800 text-sm">
+                他の企業と匿名でパフォーマンスを比較し、モチベーション向上や業界ベンチマークの確認ができます。
+                いつでも設定で変更可能です。
+              </p>
+            </div>
+
+            {/* ランキング参加設定 */}
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <Trophy className="h-6 w-6 text-yellow-600 mt-1 flex-shrink-0" />
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    ランキング参加
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-4">
+                    企業間パフォーマンス比較ランキングに参加しますか？
+                  </p>
+
+                  <div className="space-y-3">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="ranking_participation"
+                        checked={
+                          setupData.rankingSettings.isParticipating === true
+                        }
+                        onChange={() =>
+                          setSetupData({
+                            ...setupData,
+                            rankingSettings: {
+                              ...setupData.rankingSettings,
+                              isParticipating: true,
+                            },
+                          })
+                        }
+                        className="mr-3 text-primary focus:ring-primary"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">
+                          参加する
+                        </span>
+                        <p className="text-sm text-gray-600">
+                          ランキングに参加し、業界ベンチマークや比較機能を利用
+                        </p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="ranking_participation"
+                        checked={
+                          setupData.rankingSettings.isParticipating === false
+                        }
+                        onChange={() =>
+                          setSetupData({
+                            ...setupData,
+                            rankingSettings: {
+                              ...setupData.rankingSettings,
+                              isParticipating: false,
+                              isAnonymous: false,
+                              allowBenchmarking: false,
+                            },
+                          })
+                        }
+                        className="mr-3 text-primary focus:ring-primary"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">
+                          参加しない
+                        </span>
+                        <p className="text-sm text-gray-600">
+                          ランキング機能を使用せず、個人利用のみ
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* ランキング参加時の詳細設定 */}
+              {setupData.rankingSettings.isParticipating && (
+                <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                  <h5 className="font-medium text-gray-900 mb-3">
+                    プライバシー設定
+                  </h5>
+
+                  {/* 匿名表示設定 */}
+                  <div className="flex items-start space-x-3">
+                    <Shield className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h6 className="font-medium text-gray-900 mb-2">
+                        匿名表示
+                      </h6>
+                      <div className="space-y-2">
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="anonymous_setting"
+                            checked={
+                              setupData.rankingSettings.isAnonymous === false
+                            }
+                            onChange={() =>
+                              setSetupData({
+                                ...setupData,
+                                rankingSettings: {
+                                  ...setupData.rankingSettings,
+                                  isAnonymous: false,
+                                },
+                              })
+                            }
+                            className="mr-2 text-primary focus:ring-primary"
+                          />
+                          <div>
+                            <span className="text-sm font-medium text-gray-900">
+                              実名表示
+                            </span>
+                            <p className="text-xs text-gray-600">
+                              ランキングで会社名を表示（推奨）
+                            </p>
+                          </div>
+                        </label>
+
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="anonymous_setting"
+                            checked={
+                              setupData.rankingSettings.isAnonymous === true
+                            }
+                            onChange={() =>
+                              setSetupData({
+                                ...setupData,
+                                rankingSettings: {
+                                  ...setupData.rankingSettings,
+                                  isAnonymous: true,
+                                },
+                              })
+                            }
+                            className="mr-2 text-primary focus:ring-primary"
+                          />
+                          <div>
+                            <span className="text-sm font-medium text-gray-900">
+                              匿名表示
+                            </span>
+                            <p className="text-xs text-gray-600">
+                              ランキングで「A社」等の匿名で表示
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ベンチマーク参加設定 */}
+                  <div className="flex items-start space-x-3">
+                    <Users className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
+                    <div className="flex-1">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={setupData.rankingSettings.allowBenchmarking}
+                          onChange={(e) =>
+                            setSetupData({
+                              ...setupData,
+                              rankingSettings: {
+                                ...setupData.rankingSettings,
+                                allowBenchmarking: e.target.checked,
+                              },
+                            })
+                          }
+                          className="mr-3 rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                        <div>
+                          <span className="font-medium text-gray-900">
+                            ベンチマーク参加
+                          </span>
+                          <p className="text-sm text-gray-600">
+                            業界平均データの計算に参加し、より正確なベンチマークを提供
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ランキング算定基準の説明 */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h5 className="font-medium text-yellow-900 mb-2">
+                  総合スコア算定基準
+                </h5>
+                <div className="grid grid-cols-2 gap-2 text-sm text-yellow-800">
+                  <div>• 純資産形成率: 40%</div>
+                  <div>• 売上成長率: 25%</div>
+                  <div>• 利益率改善: 20%</div>
+                  <div>• 目標達成率: 15%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 4: // 完了
         return (
           <div className="space-y-6">
             <div className="text-center">
@@ -386,7 +613,7 @@ const Setup: React.FC = () => {
               <div className="space-y-2">
                 <p>
                   <span className="text-gray-600">会社名:</span>{" "}
-                  {setupData.companyName}
+                  {setupData.companyName || "未設定"}
                 </p>
                 <p>
                   <span className="text-gray-600">企業規模:</span>{" "}
@@ -412,6 +639,20 @@ const Setup: React.FC = () => {
                   <span className="text-gray-600">10年後の目標:</span>{" "}
                   {formatCurrency(setupData.longTermGoal.targetNetWorth)}
                 </p>
+                <p>
+                  <span className="text-gray-600">ランキング参加:</span>{" "}
+                  {setupData.rankingSettings.isParticipating
+                    ? "参加する"
+                    : "参加しない"}
+                </p>
+                {setupData.rankingSettings.isParticipating && (
+                  <p>
+                    <span className="text-gray-600">表示設定:</span>{" "}
+                    {setupData.rankingSettings.isAnonymous
+                      ? "匿名表示"
+                      : "実名表示"}
+                  </p>
+                )}
               </div>
             </div>
           </div>

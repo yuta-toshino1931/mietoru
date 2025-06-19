@@ -13,6 +13,7 @@ import Support from "./pages/Support";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Setup from "./pages/Setup";
+import Ranking from "./pages/Ranking";
 
 // 認証が必要なページをラップするコンポーネント
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
@@ -96,6 +97,16 @@ const AppContent: React.FC = () => {
           <ProtectedRoute>
             <Layout>
               <Settings />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/mietoru/ranking"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Ranking />
             </Layout>
           </ProtectedRoute>
         }

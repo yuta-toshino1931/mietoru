@@ -10,6 +10,7 @@ import {
   X,
   LogOut,
   User,
+  Trophy,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -26,6 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "ダッシュボード", href: "/mietoru", icon: Home },
     { name: "ロードマップ設定", href: "/mietoru/roadmap", icon: Map },
     { name: "予実管理", href: "/mietoru/budget-actual", icon: BarChart3 },
+    { name: "ランキング・表彰", href: "/mietoru/ranking", icon: Trophy },
     { name: "相談・サポート", href: "/mietoru/support", icon: MessageCircle },
   ];
 

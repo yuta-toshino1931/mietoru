@@ -8,6 +8,9 @@ import {
   Database,
   Building,
   Target,
+  Trophy,
+  Shield,
+  Eye,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import type {
@@ -16,6 +19,7 @@ import type {
   Industry,
   BusinessExperience,
   FinancialKnowledge,
+  RankingSettings,
 } from "../types";
 
 interface Task {
@@ -57,6 +61,13 @@ const Settings: React.FC = () => {
     email: true,
     browser: true,
     mobile: false,
+  });
+
+  const [rankingSettings, setRankingSettings] = useState<RankingSettings>({
+    isParticipating: true,
+    isAnonymous: false,
+    allowBenchmarking: true,
+    notificationEnabled: true,
   });
 
   // オプション定義
@@ -654,6 +665,133 @@ const Settings: React.FC = () => {
             )}
 
             <button className="btn-secondary w-full">連携設定を変更</button>
+          </div>
+        </div>
+
+        {/* ランキング・表彰設定 */}
+        <div className="card">
+          <div className="flex items-center space-x-2 mb-4">
+            <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              ランキング・表彰設定
+            </h3>
+          </div>
+
+          <div className="space-y-4">
+            {/* ランキング参加設定 */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-text">ランキング参加</p>
+                <p className="text-sm text-text/70">
+                  企業間パフォーマンス比較ランキングに参加します
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={rankingSettings.isParticipating}
+                onChange={(e) =>
+                  setRankingSettings({
+                    ...rankingSettings,
+                    isParticipating: e.target.checked,
+                  })
+                }
+                className="rounded border-border text-primary focus:ring-primary"
+              />
+            </div>
+
+            {/* 匿名表示設定 */}
+            {rankingSettings.isParticipating && (
+              <div className="bg-sub2/30 rounded-lg p-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Shield className="h-4 w-4 text-primary" />
+                    <div>
+                      <p className="font-medium text-text">匿名表示</p>
+                      <p className="text-sm text-text/70">
+                        ランキングで会社名を「A社」等で表示
+                      </p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={rankingSettings.isAnonymous}
+                    onChange={(e) =>
+                      setRankingSettings({
+                        ...rankingSettings,
+                        isAnonymous: e.target.checked,
+                      })
+                    }
+                    className="rounded border-border text-primary focus:ring-primary"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Eye className="h-4 w-4 text-primary" />
+                    <div>
+                      <p className="font-medium text-text">ベンチマーク参加</p>
+                      <p className="text-sm text-text/70">
+                        業界平均データの計算に参加
+                      </p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={rankingSettings.allowBenchmarking}
+                    onChange={(e) =>
+                      setRankingSettings({
+                        ...rankingSettings,
+                        allowBenchmarking: e.target.checked,
+                      })
+                    }
+                    className="rounded border-border text-primary focus:ring-primary"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    <div>
+                      <p className="font-medium text-text">ランキング通知</p>
+                      <p className="text-sm text-text/70">
+                        順位変動や表彰の通知を受け取る
+                      </p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={rankingSettings.notificationEnabled}
+                    onChange={(e) =>
+                      setRankingSettings({
+                        ...rankingSettings,
+                        notificationEnabled: e.target.checked,
+                      })
+                    }
+                    className="rounded border-border text-primary focus:ring-primary"
+                  />
+                </div>
+              </div>
+            )}
+
+            {!rankingSettings.isParticipating && (
+              <div className="bg-warning/10 border border-warning/30 rounded-lg p-3">
+                <p className="text-sm text-warning">
+                  ⚠️
+                  ランキングに参加しない場合、ベンチマーク情報や業界比較機能は利用できません。
+                </p>
+              </div>
+            )}
+
+            {/* ランキング算定基準の説明 */}
+            <div className="bg-sub2/30 rounded-lg p-3">
+              <h4 className="font-medium text-text mb-2">総合スコア算定基準</h4>
+              <div className="space-y-1 text-sm text-text/70">
+                <p>• 純資産形成率: 40%</p>
+                <p>• 売上成長率: 25%</p>
+                <p>• 利益率改善: 20%</p>
+                <p>• 目標達成率: 15%</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

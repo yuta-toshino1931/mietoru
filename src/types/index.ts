@@ -168,6 +168,7 @@ export interface InitialSetup {
   financialKnowledge: FinancialKnowledge;
   priorityGoals: PriorityGoal[];
   longTermGoal: LongTermGoal;
+  rankingSettings: RankingSettings; // ランキング設定を追加
 }
 
 export type CompanySize =
@@ -224,4 +225,120 @@ export interface SetupStep {
   title: string;
   description: string;
   completed: boolean;
+}
+
+// ランキング・表彰システム関連の型定義
+export interface RankingSettings {
+  isParticipating: boolean; // ランキング参加の可否
+  isAnonymous: boolean; // 匿名表示の可否
+  allowBenchmarking: boolean; // ベンチマーキング参加
+  notificationEnabled: boolean; // ランキング通知の有効/無効
+}
+
+export interface CompanyRanking {
+  id: string;
+  rank: number;
+  companyName?: string; // 匿名の場合は"A社"など
+  isAnonymous: boolean;
+  industry: Industry;
+  companySize: CompanySize;
+  foundingYear: number; // 創業年
+  totalScore: number;
+  netWorthFormationRate: number; // 純資産形成率
+  revenueGrowthRate: number; // 売上成長率
+  profitMarginImprovement: number; // 利益率改善
+  targetAchievementRate: number; // 目標達成率
+}
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  category: BadgeCategory;
+  rarity: BadgeRarity;
+  iconUrl?: string;
+  unlockedAt?: Date;
+}
+
+export type BadgeCategory =
+  | "performance" // パフォーマンスバッジ
+  | "achievement" // 達成バッジ
+  | "rare" // レアバッジ
+  | "special"; // 特別賞
+
+export type BadgeRarity = "common" | "rare" | "epic" | "legendary";
+
+export interface Award {
+  id: string;
+  name: string;
+  category: AwardCategory;
+  period: AwardPeriod;
+  year: number;
+  month?: number; // 月次表彰の場合
+  quarter?: number; // 四半期表彰の場合
+  rank: number; // 1位、2位、3位
+  companyId: string;
+  companyName?: string; // 匿名の場合は表示されない
+  isAnonymous: boolean;
+}
+
+export type AwardCategory =
+  | "overall" // 総合
+  | "industry" // 業界別
+  | "size" // 規模別
+  | "growth" // 成長率
+  | "profit" // 利益率
+  | "stability" // 安定経営
+  | "special"; // 特別賞
+
+export type AwardPeriod = "monthly" | "quarterly" | "annual";
+
+export interface RankingCategory {
+  id: string;
+  name: string;
+  description: string;
+  type: RankingType;
+}
+
+export type RankingType =
+  | "overall" // 総合ランキング
+  | "industry" // 業界別
+  | "size" // 規模別
+  | "founding" // 創業年数別
+  | "revenue" // 売上成長率
+  | "profit" // 利益率改善
+  | "net_worth" // 純資産形成率
+  | "target"; // 目標達成率
+
+export interface BenchmarkData {
+  industry: Industry;
+  companySize: CompanySize;
+  averageScore: number;
+  medianScore: number;
+  topPercentileScore: number; // 上位10%の平均
+  averageRevenueGrowth: number;
+  averageProfitMargin: number;
+  averageNetWorthFormation: number;
+  averageTargetAchievement: number;
+  participantCount: number;
+}
+
+export interface UserRankingData {
+  currentRank: number;
+  totalParticipants: number;
+  totalScore: number;
+  scoreBreakdown: {
+    netWorthFormationRate: number;
+    revenueGrowthRate: number;
+    profitMarginImprovement: number;
+    targetAchievementRate: number;
+  };
+  categoryRankings: {
+    category: RankingType;
+    rank: number;
+    totalParticipants: number;
+  }[];
+  earnedBadges: Badge[];
+  recentAwards: Award[];
+  benchmarkData: BenchmarkData;
 }

@@ -5,21 +5,18 @@ import {
   DollarSign,
   CheckCircle,
   Star,
+  Trophy,
+  Medal,
+  Crown,
+  Award,
+  Navigation,
+  MapPin,
+  Target,
+  CheckCircle2,
 } from "lucide-react";
-import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
-import { useAuth } from "../contexts/AuthContext";
+
+import { FaUserTie } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 interface Task {
   id: number;
@@ -29,11 +26,27 @@ interface Task {
   completed: boolean;
 }
 
-const Dashboard: React.FC = () => {
-  const { userSetup } = useAuth();
-  const [viewPeriod, setViewPeriod] = useState<6 | 12>(12);
-  const [selectedYear, setSelectedYear] = useState(2024);
+interface MonthlyProgress {
+  month: number;
+  year: number;
+  phase: string;
+  phaseColor: string;
+  targetNetWorth: number;
+  actualNetWorth: number;
+  isCompleted: boolean;
+  isCurrent: boolean;
+}
 
+// ビジネスマンアイコンコンポーネント
+const BusinessmanIcon: React.FC<{ isWalking: boolean }> = ({ isWalking }) => (
+  <FaUserTie
+    className={`w-full h-full transition-transform duration-500 ${
+      isWalking ? "animate-bounce" : ""
+    }`}
+  />
+);
+
+const Dashboard: React.FC = () => {
   // 今月のタスク（仮データ - 実際は設定画面から取得）
   const [monthlyTasks, setMonthlyTasks] = useState<Task[]>([
     {
@@ -56,11 +69,8 @@ const Dashboard: React.FC = () => {
 
   // 現在の年月を取得
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1;
+  const currentMonthNumber = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
-
-  // 事業年度開始月（初期設定から取得、デフォルトは4月）
-  const fiscalYearStart = userSetup?.fiscalYearStartMonth || 4;
 
   // 今月の利益目標と実績
   const currentMonthProfit = 485000;
@@ -92,7 +102,7 @@ const Dashboard: React.FC = () => {
   // サンプルデータ
   const kpiData = [
     {
-      title: `${currentYear}年${currentMonth
+      title: `${currentYear}年${currentMonthNumber
         .toString()
         .padStart(2, "0")}月の売上`,
       value: "2,350,000",
@@ -116,59 +126,103 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  // 月次利益データ（事業年度ベース）
-  const generateMonthlyProfitData = () => {
-    const months = [];
-    const monthNames = [
-      "1月",
-      "2月",
-      "3月",
-      "4月",
-      "5月",
-      "6月",
-      "7月",
-      "8月",
-      "9月",
-      "10月",
-      "11月",
-      "12月",
-    ];
+  // ロードマップ関連データ
+  const generateMonthlyProgress = (): MonthlyProgress[] => {
+    const progressData: MonthlyProgress[] = [];
+    const phases = ["創業期", "成長期", "拡大期", "安定期"];
 
-    for (let i = 0; i < viewPeriod; i++) {
-      const monthIndex = (fiscalYearStart - 1 + i) % 12;
-      months.push({
-        month: monthNames[monthIndex],
-        target: 400000 + i * 10000, // 利益目標
-        actual: 350000 + i * 15000, // 利益実績
-      });
+    for (let year = 1; year <= 10; year++) {
+      for (let month = 1; month <= 12; month++) {
+        const totalMonth = (year - 1) * 12 + month;
+        const phaseIndex = Math.floor((year - 1) / 2.5);
+        const currentPhase = phases[Math.min(phaseIndex, phases.length - 1)];
+
+        progressData.push({
+          month: totalMonth,
+          year: year,
+          phase: currentPhase,
+          phaseColor: "#67BACA",
+          targetNetWorth: 500000 * year,
+          actualNetWorth: 400000 * year,
+          isCompleted: totalMonth <= 25, // 仮の進捗
+          isCurrent: totalMonth === 25, // 現在位置
+        });
+      }
     }
-    return months;
+    return progressData;
   };
 
-  const monthlyProfitData = generateMonthlyProfitData();
+  const monthlyProgress = generateMonthlyProgress();
+  const currentMonth = monthlyProgress.find((m) => m.isCurrent);
+  const completedMonths = monthlyProgress.filter((m) => m.isCompleted).length;
+  const progressPercentage = (completedMonths / 120) * 100;
 
-  // 10年ロードマップ進捗（円グラフ用データ）
-  const currentAssets = userSetup?.currentAssets || 5000000;
-  const targetNetWorth = userSetup?.longTermGoal.targetNetWorth || 50000000;
-
-  // 今年度の進捗（仮の計算）
-  const currentYearProgress = Math.min(
-    (currentAssets / (targetNetWorth / 10)) * 100,
-    100
-  );
-  const tenYearProgress = Math.min((currentAssets / targetNetWorth) * 100, 100);
-
-  const currentYearData = [
-    { name: "達成", value: currentYearProgress, color: "#67BACA" },
-    { name: "未達成", value: 100 - currentYearProgress, color: "#E0E0E0" },
+  // 年次ガイドデータ
+  const yearlyGuides = [
+    {
+      year: 1,
+      milestones: [
+        "事業基盤の確立",
+        "初期顧客の獲得",
+        "基本的な収益モデルの構築",
+      ],
+      todoList: [
+        "事業計画の策定",
+        "資金調達",
+        "チーム編成",
+        "マーケティング開始",
+      ],
+    },
+    {
+      year: 2,
+      milestones: ["安定した収益の確保", "顧客基盤の拡大", "プロダクトの改善"],
+      todoList: ["顧客満足度向上", "新規事業の検討", "効率化の推進"],
+    },
+    {
+      year: 3,
+      milestones: ["市場での地位確立", "競合優位性の構築", "組織の拡大"],
+      todoList: ["人材採用", "システム強化", "品質向上", "ブランド構築"],
+    },
+    {
+      year: 4,
+      milestones: ["事業の多角化", "新市場への参入", "技術革新の推進"],
+      todoList: ["新サービス開発", "パートナーシップ構築", "研究開発投資"],
+    },
+    {
+      year: 5,
+      milestones: ["業界リーダーの地位", "国際展開の開始", "持続可能な成長"],
+      todoList: ["海外進出準備", "ESG対応", "デジタル変革", "人材育成"],
+    },
+    {
+      year: 6,
+      milestones: ["グローバル展開", "イノベーション創出", "業界標準の確立"],
+      todoList: ["国際認証取得", "特許出願", "業界団体参加", "専門人材確保"],
+    },
+    {
+      year: 7,
+      milestones: ["市場支配力の強化", "新技術の実用化", "社会貢献活動"],
+      todoList: ["M&A検討", "次世代技術投資", "CSR活動拡大", "後継者育成"],
+    },
+    {
+      year: 8,
+      milestones: ["持続的競争優位", "エコシステム構築", "業界変革の牽引"],
+      todoList: ["プラットフォーム化", "スタートアップ投資", "産学連携"],
+    },
+    {
+      year: 9,
+      milestones: [
+        "業界の変革者",
+        "新しいビジネスモデル",
+        "次世代リーダー育成",
+      ],
+      todoList: ["事業承継準備", "知的財産活用", "業界標準策定参加"],
+    },
+    {
+      year: 10,
+      milestones: ["目標純資産達成", "業界レガシー確立", "次世代への継承"],
+      todoList: ["資産管理最適化", "継承計画実行", "メンター活動開始"],
+    },
   ];
-
-  const tenYearData = [
-    { name: "達成", value: tenYearProgress, color: "#67BACA" },
-    { name: "未達成", value: 100 - tenYearProgress, color: "#E0E0E0" },
-  ];
-
-  const COLORS = ["#67BACA", "#E0E0E0"];
 
   return (
     <div className="space-y-6">
@@ -306,165 +360,354 @@ const Dashboard: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 月次利益推移 */}
-        <div className="card">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
-            <h3 className="text-base sm:text-lg font-semibold text-text">
-              月次利益推移
-            </h3>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="text-sm border border-border rounded px-2 py-1 pr-8 appearance-none bg-white"
-                style={{
-                  backgroundImage:
-                    'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "calc(100% - 4px) center",
-                  backgroundSize: "16px",
-                }}
-              >
-                <option value={2024}>2024年度</option>
-                <option value={2023}>2023年度</option>
-                <option value={2022}>2022年度</option>
-              </select>
-              <select
-                value={viewPeriod}
-                onChange={(e) =>
-                  setViewPeriod(Number(e.target.value) as 6 | 12)
-                }
-                className="text-sm border border-border rounded px-2 py-1 pr-8 appearance-none bg-white"
-                style={{
-                  backgroundImage:
-                    'url(\'data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\')',
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "calc(100% - 4px) center",
-                  backgroundSize: "16px",
-                }}
-              >
-                <option value={6}>6ヶ月</option>
-                <option value={12}>12ヶ月</option>
-              </select>
-            </div>
-          </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyProfitData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
-              <XAxis dataKey="month" stroke="#333333" />
-              <YAxis
-                stroke="#333333"
-                tickFormatter={(value) => `${(value / 10000).toFixed(0)}万`}
-              />
-              <Tooltip
-                formatter={(value: number) => [
-                  `${value.toLocaleString()}円`,
-                  "",
-                ]}
-                labelStyle={{ color: "#333333" }}
-              />
-              <Legend />
-              <Bar dataKey="target" fill="#B3DBC0" name="目標" />
-              <Bar dataKey="actual" fill="#67BACA" name="実績" />
-            </BarChart>
-          </ResponsiveContainer>
+      {/* 10年進捗可視化カード - カーナビ風 */}
+      <div className="card bg-gradient-to-br from-primary/10 to-primary/20 border-2 border-primary/30">
+        <div className="flex items-center space-x-2 mb-4">
+          <Navigation className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+          <h3 className="text-base sm:text-lg font-semibold text-text">
+            事業成長ナビゲーション
+          </h3>
         </div>
 
-        {/* 10年ロードマップ進捗 */}
-        <div className="card">
-          <h3 className="text-base sm:text-lg font-semibold text-text mb-4">
-            10年ロードマップ進捗
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* 今年度進捗 */}
-            <div>
-              <h4 className="text-md font-medium text-text mb-3 text-center">
-                今年度目標
-              </h4>
-              <ResponsiveContainer width="100%" height={150}>
-                <PieChart>
-                  <Pie
-                    data={currentYearData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={30}
-                    outerRadius={60}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {currentYearData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="text-center">
-                <p className="text-sm text-text/70">
-                  {(currentAssets / 10000).toFixed(0)}万 /{" "}
-                  {(targetNetWorth / 10 / 10000).toFixed(0)}万
-                </p>
-                <p className="text-lg font-bold text-primary">
-                  {currentYearProgress.toFixed(1)}%
-                </p>
-              </div>
+        {/* 現在地と目的地の表示 */}
+        <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-white rounded-lg p-3 shadow-sm">
+            <div className="flex items-center space-x-2 mb-1">
+              <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+              <span className="text-xs sm:text-sm font-medium text-gray-700">
+                現在地
+              </span>
             </div>
+            {currentMonth && (
+              <p className="text-base sm:text-lg font-bold text-primary">
+                {currentMonth.year}年{((currentMonth.month - 1) % 12) + 1}
+                ヶ月目
+              </p>
+            )}
+            <p className="text-xs sm:text-sm text-gray-600">
+              {currentMonth?.phase}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg p-3 shadow-sm">
+            <div className="flex items-center space-x-2 mb-1">
+              <MapPin className="h-3 w-3 text-accent" />
+              <span className="text-xs sm:text-sm font-medium text-gray-700">
+                目的地
+              </span>
+            </div>
+            <p className="text-base sm:text-lg font-bold text-accent">10年目</p>
+            <p className="text-xs sm:text-sm text-gray-600">
+              純資産 5,000万円達成
+            </p>
+          </div>
+        </div>
 
-            {/* 10年進捗 */}
-            <div>
-              <h4 className="text-md font-medium text-text mb-3 text-center">
-                10年目標
-              </h4>
-              <ResponsiveContainer width="100%" height={150}>
-                <PieChart>
-                  <Pie
-                    data={tenYearData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={30}
-                    outerRadius={60}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {tenYearData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
+        {/* 進捗サマリー */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <span className="text-xs sm:text-sm text-text/70">
+            📍 進捗状況: {completedMonths}ヶ月 / 120ヶ月
+          </span>
+          <span className="text-xs sm:text-sm font-medium text-primary bg-white px-2 py-1 rounded-full self-start sm:self-auto">
+            {progressPercentage.toFixed(1)}%
+          </span>
+        </div>
+
+        {/* 月次進捗の可視化 - 道路風デザイン */}
+        <div className="relative">
+          {/* 道路風進捗トラック */}
+          <div className="relative bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg p-2 sm:p-4 shadow-inner overflow-scroll overflow-y-clip">
+            <div
+              className="flex items-center relative"
+              style={{ minWidth: "600px" }}
+            >
+              {/* 月次進捗バー */}
+              <div className="flex-1 flex relative z-10">
+                {monthlyProgress.map((month, index) => {
+                  const isYearStart = month.month % 12 === 1;
+
+                  return (
+                    <div
+                      key={index}
+                      className="relative flex-1 h-8 sm:h-12 flex items-center"
+                      style={{ minWidth: "4px" }}
+                    >
+                      {/* 進捗状態（道路上のマーカー） */}
+                      <div
+                        className={`w-full h-2 sm:h-3 mx-0.5 rounded-sm transition-all duration-300 shadow-sm ${
+                          month.isCompleted
+                            ? "bg-primary shadow-primary/30"
+                            : month.isCurrent
+                            ? "bg-warning shadow-warning/30 animate-pulse"
+                            : "bg-gray-500 opacity-50"
+                        }`}
                       />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="text-center">
-                <p className="text-sm text-text/70">
-                  {(currentAssets / 10000).toFixed(0)}万 /{" "}
-                  {(targetNetWorth / 10000).toFixed(0)}万
-                </p>
-                <p className="text-lg font-bold text-primary">
-                  {tenYearProgress.toFixed(1)}%
-                </p>
+                      {/* 年度区切り線 */}
+                      {isYearStart && index > 0 && (
+                        <div className="absolute left-0 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 w-0.5 sm:w-1 bg-warning rounded-full shadow-md cursor-pointer hover:w-1 sm:hover:w-2 transition-all duration-200"></div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* ビジネスマン（現在位置） */}
+              {currentMonth && (
+                <div
+                  className="absolute flex items-center justify-center z-20 transition-all duration-1000"
+                  style={{
+                    right: `${100 - (currentMonth.month / 120) * 100}%`,
+                    top: "50%",
+                    marginTop: "-12px",
+                  }}
+                >
+                  <div className="bg-primary text-white rounded-full p-1 sm:p-2 shadow-lg border border-white sm:border-2">
+                    <div className="w-4 h-4 sm:w-6 sm:h-6">
+                      <BusinessmanIcon isWalking={true} />
+                    </div>
+                  </div>
+                  {/* 現在位置の光る効果 */}
+                  <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-30"></div>
+                </div>
+              )}
+
+              {/* ゴール地点 */}
+              <div
+                className="absolute flex items-center justify-center z-20"
+                style={{
+                  right: "0%",
+                  top: "50%",
+                  marginTop: "-12px",
+                }}
+              >
+                <div className="bg-accent text-white rounded-full p-1 sm:p-2 shadow-lg border border-white sm:border-2 animate-bounce">
+                  <MapPin className="h-4 w-4 sm:h-6 sm:w-6" />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 凡例 */}
-          <div className="flex justify-center mt-4 space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-primary rounded-full"></div>
-              <span className="text-sm text-text/70">達成</span>
+          {/* 現在の状況表示 - カーナビ風 */}
+          {currentMonth && (
+            <div className="mt-4 bg-white rounded-lg shadow-md border">
+              <div className="bg-gradient-to-r from-primary to-primary/90 text-white px-3 sm:px-4 py-2 rounded-t-lg">
+                <h4 className="text-sm sm:text-base font-medium flex items-center space-x-2">
+                  <Navigation className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span>現在の運行状況</span>
+                </h4>
+              </div>
+              <div className="p-3 sm:p-4">
+                {/* 基本情報 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm mb-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-text/70">📍 進捗期間</span>
+                      <span className="font-medium">
+                        {currentMonth.year}年
+                        {((currentMonth.month - 1) % 12) + 1}ヶ月目
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text/70">🏃 現在フェーズ</span>
+                      <span className="font-medium text-primary">
+                        {currentMonth.phase}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-text/70">🎯 目標純資産</span>
+                      <span className="font-medium">
+                        {(currentMonth.targetNetWorth / 10000).toFixed(0)}万円
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text/70">💰 現在純資産</span>
+                      <span className="font-medium text-primary">
+                        {(currentMonth.actualNetWorth / 10000).toFixed(0)}万円
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 現在年の目安とやることリスト */}
+                {(() => {
+                  const currentYearGuide = yearlyGuides.find(
+                    (g) => g.year === currentMonth.year
+                  );
+                  if (!currentYearGuide) return null;
+
+                  return (
+                    <div className="border-t border-border pt-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="bg-primary/5 rounded-lg p-3">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Target className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-medium text-text">
+                              この年の目安
+                            </span>
+                          </div>
+                          <ul className="space-y-1">
+                            {currentYearGuide.milestones.map(
+                              (milestone, index) => (
+                                <li
+                                  key={index}
+                                  className="text-xs text-text/80 flex items-start space-x-2"
+                                >
+                                  <span className="text-primary mt-1 flex-shrink-0">
+                                    •
+                                  </span>
+                                  <span>{milestone}</span>
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+
+                        <div className="bg-success/5 rounded-lg p-3">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <CheckCircle2 className="h-4 w-4 text-success" />
+                            <span className="text-sm font-medium text-text">
+                              やることリスト
+                            </span>
+                          </div>
+                          <ul className="space-y-1">
+                            {currentYearGuide.todoList.map((todo, index) => (
+                              <li
+                                key={index}
+                                className="text-xs text-text/80 flex items-start space-x-2"
+                              >
+                                <span className="text-success mt-1 flex-shrink-0">
+                                  •
+                                </span>
+                                <span>{todo}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-              <span className="text-sm text-text/70">未達成</span>
+          )}
+        </div>
+      </div>
+
+      {/* ランキング・表彰情報 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 現在の順位 */}
+        <div className="card">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              ランキング・順位
+            </h3>
+            <Link
+              to="/mietoru/ranking"
+              className="text-primary hover:underline text-sm"
+            >
+              詳しく見る →
+            </Link>
+          </div>
+
+          <div className="space-y-4">
+            {/* 総合順位 */}
+            <div className="flex items-center justify-between p-3 bg-gradient-to-r from-primary to-primary/80 text-white rounded-lg">
+              <div className="flex items-center space-x-3">
+                <Trophy className="h-6 w-6" />
+                <div>
+                  <p className="text-sm opacity-90">総合順位</p>
+                  <p className="text-xl font-bold">#15</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs opacity-80">1,247社中</p>
+                <p className="text-sm font-semibold">上位 1.2%</p>
+              </div>
+            </div>
+
+            {/* カテゴリー別順位 */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center space-x-2 p-2 bg-sub2 rounded-lg">
+                <Medal className="h-4 w-4 text-yellow-600" />
+                <div>
+                  <p className="text-xs text-text/70">業界別</p>
+                  <p className="text-sm font-bold text-text">#8</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2 p-2 bg-sub2 rounded-lg">
+                <Crown className="h-4 w-4 text-purple-600" />
+                <div>
+                  <p className="text-xs text-text/70">規模別</p>
+                  <p className="text-sm font-bold text-text">#12</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2 p-2 bg-sub2 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+                <div>
+                  <p className="text-xs text-text/70">成長率</p>
+                  <p className="text-sm font-bold text-text">#22</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2 p-2 bg-sub2 rounded-lg">
+                <Award className="h-4 w-4 text-orange-600" />
+                <div>
+                  <p className="text-xs text-text/70">利益率</p>
+                  <p className="text-sm font-bold text-text">#7</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* バッジ・表彰 */}
+        <div className="card">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base sm:text-lg font-semibold text-text">
+              バッジ・表彰
+            </h3>
+            <Link
+              to="/mietoru/ranking"
+              className="text-primary hover:underline text-sm"
+            >
+              詳しく見る →
+            </Link>
+          </div>
+
+          <div className="space-y-4">
+            {/* 獲得バッジ統計 */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="text-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <Medal className="h-6 w-6 text-yellow-600 mx-auto mb-1" />
+                <p className="text-lg font-bold text-text">3</p>
+                <p className="text-xs text-text/70">獲得バッジ</p>
+              </div>
+              <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <Trophy className="h-6 w-6 text-blue-600 mx-auto mb-1" />
+                <p className="text-lg font-bold text-text">1</p>
+                <p className="text-xs text-text/70">今月の表彰</p>
+              </div>
+              <div className="text-center p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <Star className="h-6 w-6 text-purple-600 mx-auto mb-1" />
+                <p className="text-lg font-bold text-text">82.3</p>
+                <p className="text-xs text-text/70">総合スコア</p>
+              </div>
+            </div>
+
+            {/* 最近の表彰 */}
+            <div className="bg-warning/10 border border-warning/30 rounded-lg p-3">
+              <div className="flex items-center space-x-2 mb-2">
+                <Award className="h-5 w-5 text-warning" />
+                <span className="text-sm font-semibold text-text">
+                  最新の表彰
+                </span>
+              </div>
+              <p className="text-sm text-text">
+                🏆 業界別ランキング 3位 (2024年5月)
+              </p>
+              <p className="text-xs text-text/70 mt-1">
+                IT・ソフトウェア業界で優秀な成果を達成！
+              </p>
             </div>
           </div>
         </div>
