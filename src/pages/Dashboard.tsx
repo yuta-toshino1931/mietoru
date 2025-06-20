@@ -671,7 +671,7 @@ const Dashboard: React.FC = () => {
                 {/* 現在年の目安とやることリスト */}
                 {(() => {
                   const currentYearGuide = yearlyGuides.find(
-                    (g) => g.year === currentMonth.year
+                    (g) => g.year === currentMonth.year - 1
                   );
                   if (!currentYearGuide) return null;
 
@@ -799,7 +799,7 @@ const Dashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm sm:text-base font-semibold text-primary">
-                {hoveredYear}年目の目標
+                {hoveredYear - 1}年目の目標
               </div>
               {(() => {
                 const isTouchDevice =
@@ -817,7 +817,7 @@ const Dashboard: React.FC = () => {
 
             {(() => {
               const yearGuide = yearlyGuides.find(
-                (g) => g.year === hoveredYear
+                (g) => g.year === hoveredYear - 1
               );
               if (!yearGuide) return null;
 
