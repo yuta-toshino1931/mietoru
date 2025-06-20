@@ -5,18 +5,14 @@ import {
   DollarSign,
   CheckCircle,
   Star,
-  Trophy,
-  Medal,
-  Crown,
-  Award,
   Navigation,
   MapPin,
   Target,
   CheckCircle2,
+  Info,
 } from "lucide-react";
 
-import { FaUserTie } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { FaRunning } from "react-icons/fa";
 
 interface Task {
   id: number;
@@ -39,11 +35,16 @@ interface MonthlyProgress {
 
 // ビジネスマンアイコンコンポーネント
 const BusinessmanIcon: React.FC<{ isWalking: boolean }> = ({ isWalking }) => (
-  <FaUserTie
-    className={`w-full h-full transition-transform duration-500 ${
-      isWalking ? "animate-bounce" : ""
-    }`}
-  />
+  <div className="relative pointer-events-none">
+    <FaRunning
+      className={`w-full h-full text-white transition-transform duration-500 ${
+        isWalking ? "animate-bounce" : ""
+      }`}
+      style={{
+        transform: isWalking ? "scaleX(-1)" : "scaleX(1)",
+      }}
+    />
+  </div>
 );
 
 const Dashboard: React.FC = () => {
@@ -66,6 +67,10 @@ const Dashboard: React.FC = () => {
     { id: 3, name: "前月実績の分析", day: 15, enabled: true, completed: false },
     { id: 4, name: "来月の予算計画", day: 20, enabled: true, completed: true },
   ]);
+
+  // ホバー状態管理
+  const [hoveredYear, setHoveredYear] = useState<number | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   // 現在の年月を取得
   const currentDate = new Date();
@@ -144,8 +149,8 @@ const Dashboard: React.FC = () => {
           phaseColor: "#67BACA",
           targetNetWorth: 500000 * year,
           actualNetWorth: 400000 * year,
-          isCompleted: totalMonth <= 25, // 仮の進捗
-          isCurrent: totalMonth === 25, // 現在位置
+          isCompleted: totalMonth <= 13, // 仮の進捗
+          isCurrent: totalMonth === 13, // 現在位置
         });
       }
     }
@@ -339,27 +344,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* KPIカード */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {kpiData.map((kpi, index) => (
-          <div key={index} className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-text/70">{kpi.title}</p>
-                <p className="text-2xl font-bold text-text mt-1">{kpi.value}</p>
-                <p className={`text-sm mt-1 ${kpi.color}`}>
-                  <TrendingUp className="inline h-4 w-4 mr-1" />
-                  {kpi.change}
-                </p>
-              </div>
-              <div className="p-3 bg-primary/10 rounded-full">
-                <DollarSign className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
       {/* 10年進捗可視化カード - カーナビ風 */}
       <div className="card bg-gradient-to-br from-primary/10 to-primary/20 border-2 border-primary/30">
         <div className="flex items-center space-x-2 mb-4">
@@ -441,9 +425,92 @@ const Dashboard: React.FC = () => {
                             : "bg-gray-500 opacity-50"
                         }`}
                       />
-                      {/* 年度区切り線 */}
+                      {/* 年度区切り線とホバー機能 */}
                       {isYearStart && index > 0 && (
-                        <div className="absolute left-0 top-0.5 sm:top-1 bottom-0.5 sm:bottom-1 w-0.5 sm:w-1 bg-warning rounded-full shadow-md cursor-pointer hover:w-1 sm:hover:w-2 transition-all duration-200"></div>
+                        <div className="absolute left-0 -top-2 sm:-top-4 h-12 sm:h-16 flex flex-col items-center">
+                          {/* お知らせアイコン */}
+                          <div className="relative">
+                            <Info className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 animate-pulse" />
+                          </div>
+                          {/* 年度区切り線 */}
+                          <div
+                            className="w-0.5 sm:w-1 flex-1 z-10 bg-warning rounded-full shadow-md cursor-pointer hover:bg-warning/80 transition-colors duration-200 relative"
+                            onMouseEnter={(e) => {
+                              setHoveredYear(month.year);
+                              const rect =
+                                e.currentTarget.getBoundingClientRect();
+                              const viewportWidth = window.innerWidth;
+                              const viewportHeight = window.innerHeight;
+
+                              // ツールチップの幅を動的に決定
+                              const tooltipWidth =
+                                viewportWidth < 640
+                                  ? Math.min(280, viewportWidth - 40)
+                                  : 320;
+
+                              // レスポンシブな位置計算
+                              let x, y;
+
+                              if (viewportWidth < 768) {
+                                // モバイル・タブレット: 画面中央に表示
+                                x = (viewportWidth - tooltipWidth) / 2;
+                                y = viewportHeight * 0.3; // 画面上部30%の位置
+                              } else {
+                                // デスクトップ: 線の横に表示
+                                x = rect.right + 10;
+                                y = rect.top;
+
+                                // 画面右端を超える場合は左側に表示
+                                if (x + tooltipWidth > viewportWidth - 20) {
+                                  x = rect.left - tooltipWidth - 10;
+                                }
+
+                                // 画面左端を超える場合は中央に表示
+                                if (x < 20) {
+                                  x = (viewportWidth - tooltipWidth) / 2;
+                                  y = viewportHeight * 0.3;
+                                }
+
+                                // 画面上端を超える場合は下に表示
+                                if (y < 200) {
+                                  y = rect.bottom + 10;
+                                }
+
+                                // 画面下端を超える場合は上に調整
+                                if (y + 300 > viewportHeight) {
+                                  y = viewportHeight - 320;
+                                }
+                              }
+
+                              setTooltipPosition({
+                                x: Math.max(20, x),
+                                y: Math.max(20, y),
+                              });
+                            }}
+                            onMouseLeave={() => setHoveredYear(null)}
+                            onClick={() => {
+                              // スマホ用のタッチ対応
+                              if (window.innerWidth < 768) {
+                                if (hoveredYear === month.year) {
+                                  setHoveredYear(null);
+                                } else {
+                                  setHoveredYear(month.year);
+                                  const viewportWidth = window.innerWidth;
+                                  const viewportHeight = window.innerHeight;
+                                  const tooltipWidth = Math.min(
+                                    280,
+                                    viewportWidth - 40
+                                  );
+
+                                  setTooltipPosition({
+                                    x: (viewportWidth - tooltipWidth) / 2,
+                                    y: viewportHeight * 0.3,
+                                  });
+                                }
+                              }
+                            }}
+                          />
+                        </div>
                       )}
                     </div>
                   );
@@ -453,20 +520,20 @@ const Dashboard: React.FC = () => {
               {/* ビジネスマン（現在位置） */}
               {currentMonth && (
                 <div
-                  className="absolute flex items-center justify-center z-20 transition-all duration-1000"
+                  className="absolute flex items-center justify-center z-20 transition-all duration-1000 pointer-events-none"
                   style={{
-                    right: `${100 - (currentMonth.month / 120) * 100}%`,
+                    right: `${98 - (currentMonth.month / 120) * 100}%`,
                     top: "50%",
                     marginTop: "-12px",
                   }}
                 >
-                  <div className="bg-primary text-white rounded-full p-1 sm:p-2 shadow-lg border border-white sm:border-2">
-                    <div className="w-4 h-4 sm:w-6 sm:h-6">
+                  <div className="bg-primary text-white rounded-full p-1 sm:p-2 shadow-lg border border-white sm:border-2 pointer-events-none">
+                    <div className="w-4 h-4 sm:w-6 sm:h-6 pointer-events-none">
                       <BusinessmanIcon isWalking={true} />
                     </div>
                   </div>
                   {/* 現在位置の光る効果 */}
-                  <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-30"></div>
+                  <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-30 pointer-events-none"></div>
                 </div>
               )}
 
@@ -474,7 +541,7 @@ const Dashboard: React.FC = () => {
               <div
                 className="absolute flex items-center justify-center z-20"
                 style={{
-                  right: "0%",
+                  right: "-2%",
                   top: "50%",
                   marginTop: "-12px",
                 }}
@@ -594,124 +661,132 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* ランキング・表彰情報 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 現在の順位 */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base sm:text-lg font-semibold text-text">
-              ランキング・順位
-            </h3>
-            <Link
-              to="/mietoru/ranking"
-              className="text-primary hover:underline text-sm"
-            >
-              詳しく見る →
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            {/* 総合順位 */}
-            <div className="flex items-center justify-between p-3 bg-gradient-to-r from-primary to-primary/80 text-white rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Trophy className="h-6 w-6" />
-                <div>
-                  <p className="text-sm opacity-90">総合順位</p>
-                  <p className="text-xl font-bold">#15</p>
-                </div>
+      {/* KPIカード */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {kpiData.map((kpi, index) => (
+          <div key={index} className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text/70">{kpi.title}</p>
+                <p className="text-2xl font-bold text-text mt-1">{kpi.value}</p>
+                <p className={`text-sm mt-1 ${kpi.color}`}>
+                  <TrendingUp className="inline h-4 w-4 mr-1" />
+                  {kpi.change}
+                </p>
               </div>
-              <div className="text-right">
-                <p className="text-xs opacity-80">1,247社中</p>
-                <p className="text-sm font-semibold">上位 1.2%</p>
-              </div>
-            </div>
-
-            {/* カテゴリー別順位 */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center space-x-2 p-2 bg-sub2 rounded-lg">
-                <Medal className="h-4 w-4 text-yellow-600" />
-                <div>
-                  <p className="text-xs text-text/70">業界別</p>
-                  <p className="text-sm font-bold text-text">#8</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2 p-2 bg-sub2 rounded-lg">
-                <Crown className="h-4 w-4 text-purple-600" />
-                <div>
-                  <p className="text-xs text-text/70">規模別</p>
-                  <p className="text-sm font-bold text-text">#12</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2 p-2 bg-sub2 rounded-lg">
-                <TrendingUp className="h-4 w-4 text-green-600" />
-                <div>
-                  <p className="text-xs text-text/70">成長率</p>
-                  <p className="text-sm font-bold text-text">#22</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2 p-2 bg-sub2 rounded-lg">
-                <Award className="h-4 w-4 text-orange-600" />
-                <div>
-                  <p className="text-xs text-text/70">利益率</p>
-                  <p className="text-sm font-bold text-text">#7</p>
-                </div>
+              <div className="p-3 bg-primary/10 rounded-full">
+                <DollarSign className="h-6 w-6 text-primary" />
               </div>
             </div>
           </div>
-        </div>
-
-        {/* バッジ・表彰 */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base sm:text-lg font-semibold text-text">
-              バッジ・表彰
-            </h3>
-            <Link
-              to="/mietoru/ranking"
-              className="text-primary hover:underline text-sm"
-            >
-              詳しく見る →
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            {/* 獲得バッジ統計 */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="text-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <Medal className="h-6 w-6 text-yellow-600 mx-auto mb-1" />
-                <p className="text-lg font-bold text-text">3</p>
-                <p className="text-xs text-text/70">獲得バッジ</p>
-              </div>
-              <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <Trophy className="h-6 w-6 text-blue-600 mx-auto mb-1" />
-                <p className="text-lg font-bold text-text">1</p>
-                <p className="text-xs text-text/70">今月の表彰</p>
-              </div>
-              <div className="text-center p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                <Star className="h-6 w-6 text-purple-600 mx-auto mb-1" />
-                <p className="text-lg font-bold text-text">82.3</p>
-                <p className="text-xs text-text/70">総合スコア</p>
-              </div>
-            </div>
-
-            {/* 最近の表彰 */}
-            <div className="bg-warning/10 border border-warning/30 rounded-lg p-3">
-              <div className="flex items-center space-x-2 mb-2">
-                <Award className="h-5 w-5 text-warning" />
-                <span className="text-sm font-semibold text-text">
-                  最新の表彰
-                </span>
-              </div>
-              <p className="text-sm text-text">
-                🏆 業界別ランキング 3位 (2024年5月)
-              </p>
-              <p className="text-xs text-text/70 mt-1">
-                IT・ソフトウェア業界で優秀な成果を達成！
-              </p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
+
+      {/* ホバーツールチップ（最前面に表示） */}
+      {hoveredYear && (
+        <>
+          {/* スマホ用背景オーバーレイ */}
+          {window.innerWidth < 768 && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-20 z-[99998]"
+              onClick={() => setHoveredYear(null)}
+            />
+          )}
+
+          <div
+            className="fixed bg-white rounded-lg shadow-lg border border-gray-200 p-3 opacity-0 animate-fadeIn"
+            style={{
+              zIndex: 99999,
+              left: `${tooltipPosition.x}px`,
+              top: `${tooltipPosition.y}px`,
+              animationFillMode: "forwards",
+              width:
+                window.innerWidth < 640
+                  ? `${Math.min(280, window.innerWidth - 40)}px`
+                  : "320px",
+              maxWidth:
+                window.innerWidth < 768 ? "calc(100vw - 40px)" : "400px",
+              pointerEvents: window.innerWidth < 768 ? "auto" : "none",
+            }}
+            onClick={(e) => {
+              // スマホ版でツールチップをタップして閉じる
+              if (window.innerWidth < 768) {
+                e.stopPropagation();
+                setHoveredYear(null);
+              }
+            }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm sm:text-base font-semibold text-primary">
+                {hoveredYear}年目の目標
+              </div>
+              {window.innerWidth < 768 && (
+                <button
+                  onClick={() => setHoveredYear(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {(() => {
+              const yearGuide = yearlyGuides.find(
+                (g) => g.year === hoveredYear
+              );
+              if (!yearGuide) return null;
+
+              return (
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Target className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium text-gray-800">
+                        この年の目安
+                      </span>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {yearGuide.milestones.map((milestone, idx) => (
+                        <li
+                          key={idx}
+                          className="text-sm text-gray-700 flex items-start space-x-2"
+                        >
+                          <span className="text-primary mt-1 flex-shrink-0">
+                            •
+                          </span>
+                          <span>{milestone}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                      <span className="text-sm font-medium text-gray-800">
+                        やることリスト
+                      </span>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {yearGuide.todoList.map((todo, idx) => (
+                        <li
+                          key={idx}
+                          className="text-sm text-gray-700 flex items-start space-x-2"
+                        >
+                          <span className="text-success mt-1 flex-shrink-0">
+                            •
+                          </span>
+                          <span>{todo}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </>
+      )}
     </div>
   );
 };
