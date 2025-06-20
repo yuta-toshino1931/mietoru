@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TrendingUp,
   AlertCircle,
@@ -71,6 +71,20 @@ const Dashboard: React.FC = () => {
   // ホバー状態管理
   const [hoveredYear, setHoveredYear] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
+  // レスポンシブ対応のための画面幅監視
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 768
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // 現在の年月を取得
   const currentDate = new Date();
@@ -149,8 +163,8 @@ const Dashboard: React.FC = () => {
           phaseColor: "#67BACA",
           targetNetWorth: 500000 * year,
           actualNetWorth: 400000 * year,
-          isCompleted: totalMonth <= 13, // 仮の進捗
-          isCurrent: totalMonth === 13, // 現在位置
+          isCompleted: totalMonth <= 100, // 仮の進捗
+          isCurrent: totalMonth === 100, // 現在位置
         });
       }
     }
@@ -167,65 +181,100 @@ const Dashboard: React.FC = () => {
     {
       year: 1,
       milestones: [
-        "事業基盤の確立",
-        "初期顧客の獲得",
-        "基本的な収益モデルの構築",
+        "お金が少しずつ入ってくるようになった",
+        "なんとか生活できるくらいにはなった",
       ],
       todoList: [
-        "事業計画の策定",
-        "資金調達",
-        "チーム編成",
-        "マーケティング開始",
+        "お客さんを見つけよう",
+        "月に10万円以上の黒字を目指そう",
+        "使ったお金を毎月記録しよう",
       ],
     },
     {
       year: 2,
-      milestones: ["安定した収益の確保", "顧客基盤の拡大", "プロダクトの改善"],
-      todoList: ["顧客満足度向上", "新規事業の検討", "効率化の推進"],
+      milestones: ["月の売上が50万円くらいに安定", "お金の流れがわかってきた"],
+      todoList: [
+        "無駄な支出を見直そう",
+        "お金の使い方に優先順位をつけよう",
+        "利益（売上−かかったお金）を20万円以上目指そう",
+      ],
     },
     {
       year: 3,
-      milestones: ["市場での地位確立", "競合優位性の構築", "組織の拡大"],
-      todoList: ["人材採用", "システム強化", "品質向上", "ブランド構築"],
+      milestones: [
+        "お客さんがリピートしてくれるように",
+        "売上が月80万円くらいになる",
+      ],
+      todoList: [
+        "「何が一番もうかるか」見えるようにしよう",
+        "人にお願いする仕事を少しずつ増やしてみよう",
+      ],
     },
     {
       year: 4,
-      milestones: ["事業の多角化", "新市場への参入", "技術革新の推進"],
-      todoList: ["新サービス開発", "パートナーシップ構築", "研究開発投資"],
+      milestones: ["月100万円以上の売上が出てきた", "経費をかける余裕もある"],
+      todoList: [
+        "「手元にいくら残るか」を意識しよう",
+        "広告や外注などに使うお金を計画的に",
+      ],
     },
     {
       year: 5,
-      milestones: ["業界リーダーの地位", "国際展開の開始", "持続可能な成長"],
-      todoList: ["海外進出準備", "ESG対応", "デジタル変革", "人材育成"],
+      milestones: ["年間で500万円くらい残るように", "事業がまわり始めている"],
+      todoList: [
+        "お金の記録をしっかりつけよう",
+        "税理士に相談して節税を始めよう",
+        "使わないお金は「手元に残す」習慣を",
+      ],
     },
     {
       year: 6,
-      milestones: ["グローバル展開", "イノベーション創出", "業界標準の確立"],
-      todoList: ["国際認証取得", "特許出願", "業界団体参加", "専門人材確保"],
+      milestones: ["チームや仲間がいる状態に", "売上以外にも収入が増えてくる"],
+      todoList: [
+        "毎月の売上が自動で入る仕組みを考えよう",
+        "「時間を使わないでも収入がある状態」をつくる",
+      ],
     },
     {
       year: 7,
-      milestones: ["市場支配力の強化", "新技術の実用化", "社会貢献活動"],
-      todoList: ["M&A検討", "次世代技術投資", "CSR活動拡大", "後継者育成"],
+      milestones: [
+        "自分が動かなくても収入がある状態",
+        "自分の時間に余裕ができてきた",
+      ],
+      todoList: [
+        "お金を「使う・守る・ふやす」のバランスを考える",
+        "資産（残しておくお金）を運用も検討しよう",
+      ],
     },
     {
       year: 8,
-      milestones: ["持続的競争優位", "エコシステム構築", "業界変革の牽引"],
-      todoList: ["プラットフォーム化", "スタートアップ投資", "産学連携"],
+      milestones: ["事業も生活も安定している", "将来への備えもできてきた"],
+      todoList: [
+        "「お金に働いてもらう」方法を学ぼう",
+        "投資・資産運用を税理士と相談して始めよう",
+      ],
     },
     {
       year: 9,
       milestones: [
-        "業界の変革者",
-        "新しいビジネスモデル",
-        "次世代リーダー育成",
+        "自由に働き方を選べるように",
+        "税金や老後の準備も視野に入る",
       ],
-      todoList: ["事業承継準備", "知的財産活用", "業界標準策定参加"],
+      todoList: [
+        "ライフプランを見直そう",
+        "事業を続ける？売る？次の目標は？と考えよう",
+      ],
     },
     {
       year: 10,
-      milestones: ["目標純資産達成", "業界レガシー確立", "次世代への継承"],
-      todoList: ["資産管理最適化", "継承計画実行", "メンター活動開始"],
+      milestones: [
+        "夢だった目標が現実に！",
+        "好きなことをする時間・お金・自由が手に入った",
+      ],
+      todoList: [
+        "成功パターンをふりかえろう",
+        "次の目標を考えよう：家族、趣味、投資、社会貢献など",
+      ],
     },
   ];
 
@@ -379,7 +428,9 @@ const Dashboard: React.FC = () => {
                 目的地
               </span>
             </div>
-            <p className="text-base sm:text-lg font-bold text-accent">10年目</p>
+            <p className="text-base sm:text-lg font-bold text-accent">
+              10年12ヶ月目
+            </p>
             <p className="text-xs sm:text-sm text-gray-600">
               純資産 5,000万円達成
             </p>
@@ -391,19 +442,18 @@ const Dashboard: React.FC = () => {
           <span className="text-xs sm:text-sm text-text/70">
             📍 進捗状況: {completedMonths}ヶ月 / 120ヶ月
           </span>
-          <span className="text-xs sm:text-sm font-medium text-primary bg-white px-2 py-1 rounded-full self-start sm:self-auto">
-            {progressPercentage.toFixed(1)}%
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs sm:text-sm font-medium text-primary bg-white px-2 py-1 rounded-full self-start sm:self-auto">
+              {progressPercentage.toFixed(1)}%
+            </span>
+          </div>
         </div>
 
         {/* 月次進捗の可視化 - 道路風デザイン */}
         <div className="relative">
           {/* 道路風進捗トラック */}
-          <div className="relative bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg p-2 sm:p-4 shadow-inner overflow-scroll overflow-y-clip">
-            <div
-              className="flex items-center relative"
-              style={{ minWidth: "600px" }}
-            >
+          <div className="relative bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg p-2 sm:p-4 shadow-inner overflow-x-auto md:overflow-x-hidden overflow-y-clip">
+            <div className="flex items-center relative w-full min-w-[900px] md:min-w-0 pr-5 mt-2">
               {/* 月次進捗バー */}
               <div className="flex-1 flex relative z-10">
                 {monthlyProgress.map((month, index) => {
@@ -412,8 +462,12 @@ const Dashboard: React.FC = () => {
                   return (
                     <div
                       key={index}
-                      className="relative flex-1 h-8 sm:h-12 flex items-center"
-                      style={{ minWidth: "4px" }}
+                      className="relative h-8 sm:h-12 flex items-center"
+                      style={{
+                        flex: "1 1 0%",
+                        minWidth: "4px",
+                        maxWidth: windowWidth < 768 ? "8px" : "20px",
+                      }}
                     >
                       {/* 進捗状態（道路上のマーカー） */}
                       <div
@@ -424,17 +478,14 @@ const Dashboard: React.FC = () => {
                             ? "bg-warning shadow-warning/30 animate-pulse"
                             : "bg-gray-500 opacity-50"
                         }`}
+                        style={{ minWidth: "2px" }}
                       />
-                      {/* 年度区切り線とホバー機能 */}
+                      {/* 年度区切り線とインフォメーションマーク */}
                       {isYearStart && index > 0 && (
                         <div className="absolute left-0 -top-2 sm:-top-4 h-12 sm:h-16 flex flex-col items-center">
-                          {/* お知らせアイコン */}
-                          <div className="relative">
-                            <Info className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 animate-pulse" />
-                          </div>
-                          {/* 年度区切り線 */}
+                          {/* お知らせアイコン（ホバーイベント付き） */}
                           <div
-                            className="w-0.5 sm:w-1 flex-1 z-10 bg-warning rounded-full shadow-md cursor-pointer hover:bg-warning/80 transition-colors duration-200 relative"
+                            className="relative cursor-pointer mb-1"
                             onMouseEnter={(e) => {
                               setHoveredYear(month.year);
                               const rect =
@@ -456,7 +507,7 @@ const Dashboard: React.FC = () => {
                                 x = (viewportWidth - tooltipWidth) / 2;
                                 y = viewportHeight * 0.3; // 画面上部30%の位置
                               } else {
-                                // デスクトップ: 線の横に表示
+                                // デスクトップ: アイコンの横に表示
                                 x = rect.right + 10;
                                 y = rect.top;
 
@@ -509,7 +560,11 @@ const Dashboard: React.FC = () => {
                                 }
                               }
                             }}
-                          />
+                          >
+                            <Info className="h-3 w-3 sm:h-4 sm:w-4 text-orange-400 hover:text-orange-300 animate-pulse transition-colors duration-200" />
+                          </div>
+                          {/* 年度区切り線（ホバーイベントなし） */}
+                          <div className="w-0.5 sm:w-1 flex-1 bg-warning rounded-full shadow-md" />
                         </div>
                       )}
                     </div>
@@ -522,7 +577,7 @@ const Dashboard: React.FC = () => {
                 <div
                   className="absolute flex items-center justify-center z-20 transition-all duration-1000 pointer-events-none"
                   style={{
-                    right: `${98 - (currentMonth.month / 120) * 100}%`,
+                    right: `${99 - (currentMonth.month / 120) * 100}%`, // デスクトップ: %ベース
                     top: "50%",
                     marginTop: "-12px",
                   }}
@@ -541,7 +596,7 @@ const Dashboard: React.FC = () => {
               <div
                 className="absolute flex items-center justify-center z-20"
                 style={{
-                  right: "-2%",
+                  right: "-1%", // デスクトップ: %ベース
                   top: "50%",
                   marginTop: "-12px",
                 }}
@@ -584,13 +639,13 @@ const Dashboard: React.FC = () => {
                     <div className="flex justify-between">
                       <span className="text-text/70">🎯 目標純資産</span>
                       <span className="font-medium">
-                        {(currentMonth.targetNetWorth / 10000).toFixed(0)}万円
+                        {(currentMonth.targetNetWorth / 1000).toFixed(0)}万円
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-text/70">💰 現在純資産</span>
                       <span className="font-medium text-primary">
-                        {(currentMonth.actualNetWorth / 10000).toFixed(0)}万円
+                        {(currentMonth.actualNetWorth / 1000).toFixed(0)}万円
                       </span>
                     </div>
                   </div>
@@ -623,7 +678,7 @@ const Dashboard: React.FC = () => {
                                   <span className="text-primary mt-1 flex-shrink-0">
                                     •
                                   </span>
-                                  <span>{milestone}</span>
+                                  <span className="mt-1">{milestone}</span>
                                 </li>
                               )
                             )}
@@ -646,7 +701,7 @@ const Dashboard: React.FC = () => {
                                 <span className="text-success mt-1 flex-shrink-0">
                                   •
                                 </span>
-                                <span>{todo}</span>
+                                <span className="mt-1">{todo}</span>
                               </li>
                             ))}
                           </ul>
@@ -686,7 +741,7 @@ const Dashboard: React.FC = () => {
       {hoveredYear && (
         <>
           {/* スマホ用背景オーバーレイ */}
-          {window.innerWidth < 768 && (
+          {windowWidth < 768 && (
             <div
               className="fixed inset-0 bg-black bg-opacity-20 z-[99998]"
               onClick={() => setHoveredYear(null)}
@@ -701,16 +756,15 @@ const Dashboard: React.FC = () => {
               top: `${tooltipPosition.y}px`,
               animationFillMode: "forwards",
               width:
-                window.innerWidth < 640
-                  ? `${Math.min(280, window.innerWidth - 40)}px`
+                windowWidth < 640
+                  ? `${Math.min(280, windowWidth - 40)}px`
                   : "320px",
-              maxWidth:
-                window.innerWidth < 768 ? "calc(100vw - 40px)" : "400px",
-              pointerEvents: window.innerWidth < 768 ? "auto" : "none",
+              maxWidth: windowWidth < 768 ? "calc(100vw - 40px)" : "400px",
+              pointerEvents: windowWidth < 768 ? "auto" : "none",
             }}
             onClick={(e) => {
               // スマホ版でツールチップをタップして閉じる
-              if (window.innerWidth < 768) {
+              if (windowWidth < 768) {
                 e.stopPropagation();
                 setHoveredYear(null);
               }
@@ -720,7 +774,7 @@ const Dashboard: React.FC = () => {
               <div className="text-sm sm:text-base font-semibold text-primary">
                 {hoveredYear}年目の目標
               </div>
-              {window.innerWidth < 768 && (
+              {windowWidth < 768 && (
                 <button
                   onClick={() => setHoveredYear(null)}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
