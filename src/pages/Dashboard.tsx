@@ -413,7 +413,7 @@ const Dashboard: React.FC = () => {
             </div>
             {currentMonth && (
               <p className="text-base sm:text-lg font-bold text-primary">
-                {currentMonth.year}年{((currentMonth.month - 1) % 12) + 1}
+                {currentMonth.year - 1}年{((currentMonth.month - 1) % 12) + 1}
                 ヶ月目
               </p>
             )}
@@ -429,7 +429,7 @@ const Dashboard: React.FC = () => {
               </span>
             </div>
             <p className="text-base sm:text-lg font-bold text-accent">
-              10年12ヶ月目
+              9年12ヶ月目
             </p>
             <p className="text-xs sm:text-sm text-gray-600">
               純資産 5,000万円達成
@@ -494,20 +494,25 @@ const Dashboard: React.FC = () => {
                               const viewportHeight = window.innerHeight;
 
                               // ツールチップの幅を動的に決定
-                              const tooltipWidth =
-                                viewportWidth < 640
-                                  ? Math.min(280, viewportWidth - 40)
-                                  : 320;
+                              const tooltipWidth = Math.min(
+                                320,
+                                viewportWidth - 40
+                              );
 
                               // レスポンシブな位置計算
                               let x, y;
 
-                              if (viewportWidth < 768) {
+                              // タッチデバイスかどうかの判定（モバイル/タブレット判定）
+                              const isTouchDevice =
+                                "ontouchstart" in window ||
+                                navigator.maxTouchPoints > 0;
+
+                              if (isTouchDevice && viewportWidth < 768) {
                                 // モバイル・タブレット: 画面中央に表示
                                 x = (viewportWidth - tooltipWidth) / 2;
                                 y = viewportHeight * 0.3; // 画面上部30%の位置
                               } else {
-                                // デスクトップ: アイコンの横に表示
+                                // デスクトップ（画面幅が狭くても）: アイコンの横に表示
                                 x = rect.right + 10;
                                 y = rect.top;
 
@@ -516,32 +521,44 @@ const Dashboard: React.FC = () => {
                                   x = rect.left - tooltipWidth - 10;
                                 }
 
-                                // 画面左端を超える場合は中央に表示
+                                // 画面左端を超える場合は上下中央に表示
                                 if (x < 20) {
-                                  x = (viewportWidth - tooltipWidth) / 2;
-                                  y = viewportHeight * 0.3;
+                                  x = Math.max(
+                                    20,
+                                    (viewportWidth - tooltipWidth) / 2
+                                  );
+                                  // 画面幅が狭い場合は縦位置を調整
+                                  if (viewportWidth < 600) {
+                                    y = Math.max(100, viewportHeight * 0.2);
+                                  }
                                 }
 
                                 // 画面上端を超える場合は下に表示
-                                if (y < 200) {
+                                if (y < 100) {
                                   y = rect.bottom + 10;
                                 }
 
                                 // 画面下端を超える場合は上に調整
-                                if (y + 300 > viewportHeight) {
-                                  y = viewportHeight - 320;
+                                if (y + 350 > viewportHeight) {
+                                  y = Math.max(50, viewportHeight - 370);
                                 }
                               }
 
                               setTooltipPosition({
-                                x: Math.max(20, x),
-                                y: Math.max(20, y),
+                                x: Math.max(
+                                  10,
+                                  Math.min(x, viewportWidth - tooltipWidth - 10)
+                                ),
+                                y: Math.max(10, y),
                               });
                             }}
                             onMouseLeave={() => setHoveredYear(null)}
                             onClick={() => {
                               // スマホ用のタッチ対応
-                              if (window.innerWidth < 768) {
+                              const isTouchDevice =
+                                "ontouchstart" in window ||
+                                navigator.maxTouchPoints > 0;
+                              if (isTouchDevice && window.innerWidth < 768) {
                                 if (hoveredYear === month.year) {
                                   setHoveredYear(null);
                                 } else {
@@ -549,7 +566,7 @@ const Dashboard: React.FC = () => {
                                   const viewportWidth = window.innerWidth;
                                   const viewportHeight = window.innerHeight;
                                   const tooltipWidth = Math.min(
-                                    280,
+                                    320,
                                     viewportWidth - 40
                                   );
 
@@ -624,7 +641,7 @@ const Dashboard: React.FC = () => {
                     <div className="flex justify-between">
                       <span className="text-text/70">📍 進捗期間</span>
                       <span className="font-medium">
-                        {currentMonth.year}年
+                        {currentMonth.year - 1}年
                         {((currentMonth.month - 1) % 12) + 1}ヶ月目
                       </span>
                     </div>
@@ -741,7 +758,11 @@ const Dashboard: React.FC = () => {
       {hoveredYear && (
         <>
           {/* スマホ用背景オーバーレイ */}
-          {windowWidth < 768 && (
+          {(() => {
+            const isTouchDevice =
+              "ontouchstart" in window || navigator.maxTouchPoints > 0;
+            return isTouchDevice && windowWidth < 768;
+          })() && (
             <div
               className="fixed inset-0 bg-black bg-opacity-20 z-[99998]"
               onClick={() => setHoveredYear(null)}
@@ -760,11 +781,17 @@ const Dashboard: React.FC = () => {
                   ? `${Math.min(280, windowWidth - 40)}px`
                   : "320px",
               maxWidth: windowWidth < 768 ? "calc(100vw - 40px)" : "400px",
-              pointerEvents: windowWidth < 768 ? "auto" : "none",
+              pointerEvents: (() => {
+                const isTouchDevice =
+                  "ontouchstart" in window || navigator.maxTouchPoints > 0;
+                return isTouchDevice && windowWidth < 768 ? "auto" : "none";
+              })(),
             }}
             onClick={(e) => {
               // スマホ版でツールチップをタップして閉じる
-              if (windowWidth < 768) {
+              const isTouchDevice =
+                "ontouchstart" in window || navigator.maxTouchPoints > 0;
+              if (isTouchDevice && windowWidth < 768) {
                 e.stopPropagation();
                 setHoveredYear(null);
               }
@@ -774,7 +801,11 @@ const Dashboard: React.FC = () => {
               <div className="text-sm sm:text-base font-semibold text-primary">
                 {hoveredYear}年目の目標
               </div>
-              {windowWidth < 768 && (
+              {(() => {
+                const isTouchDevice =
+                  "ontouchstart" in window || navigator.maxTouchPoints > 0;
+                return isTouchDevice && windowWidth < 768;
+              })() && (
                 <button
                   onClick={() => setHoveredYear(null)}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
