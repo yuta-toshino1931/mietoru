@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Save, Calculator, Navigation } from "lucide-react";
 import {
   LineChart,
@@ -25,6 +25,10 @@ const Roadmap: React.FC = () => {
 
   // 初期設定から初期従業員数を取得
   const initialEmployees = userSetup?.employeeCount || 1;
+
+  // アニメーション用の状態
+  const [yearlyProgress, setYearlyProgress] = useState(0);
+  const [tenYearProgress, setTenYearProgress] = useState(0);
 
   const [targets, setTargets] = useState<YearlyTarget[]>([
     {
@@ -132,6 +136,39 @@ const Roadmap: React.FC = () => {
     alert("目標を再設定しました。");
   };
 
+  // アニメーション効果
+  useEffect(() => {
+    const targetYearlyProgress = 25.0;
+    const targetTenYearProgress = 10.0;
+
+    const yearlyTimer = setTimeout(() => {
+      let progress = 0;
+      const yearlyInterval = setInterval(() => {
+        progress += 1;
+        setYearlyProgress(progress);
+        if (progress >= targetYearlyProgress) {
+          clearInterval(yearlyInterval);
+        }
+      }, 20);
+    }, 300);
+
+    const tenYearTimer = setTimeout(() => {
+      let progress = 0;
+      const tenYearInterval = setInterval(() => {
+        progress += 0.5;
+        setTenYearProgress(progress);
+        if (progress >= targetTenYearProgress) {
+          clearInterval(tenYearInterval);
+        }
+      }, 40);
+    }, 800);
+
+    return () => {
+      clearTimeout(yearlyTimer);
+      clearTimeout(tenYearTimer);
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -161,6 +198,13 @@ const Roadmap: React.FC = () => {
         <h3 className="text-base sm:text-lg font-semibold text-text mb-4">
           10年ロードマップ進捗
         </h3>
+        <div className="mb-6 text-center">
+          <p className="text-sm sm:text-base text-text/80 leading-relaxed">
+            10年間で純資産5000万円を目指すロードマップを作成します。
+            <br />
+            １年ごとの目標をご提案します。
+          </p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* 今年度進捗 */}
           <div>
@@ -188,14 +232,16 @@ const Roadmap: React.FC = () => {
                     stroke="#67BACA"
                     strokeWidth="8"
                     fill="none"
-                    strokeDasharray={`${(25 * 251.2) / 100} 251.2`}
+                    strokeDasharray={`${(yearlyProgress * 251.2) / 100} 251.2`}
                     strokeLinecap="round"
-                    className="transition-all duration-1000"
+                    className="transition-all duration-300"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-lg font-bold text-primary">25.0%</div>
+                    <div className="text-lg font-bold text-primary">
+                      {yearlyProgress.toFixed(1)}%
+                    </div>
                     <div className="text-xs text-gray-600">今年度進捗</div>
                   </div>
                 </div>
@@ -232,14 +278,16 @@ const Roadmap: React.FC = () => {
                     stroke="#67BACA"
                     strokeWidth="8"
                     fill="none"
-                    strokeDasharray={`${(10 * 251.2) / 100} 251.2`}
+                    strokeDasharray={`${(tenYearProgress * 251.2) / 100} 251.2`}
                     strokeLinecap="round"
-                    className="transition-all duration-1000"
+                    className="transition-all duration-300"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-lg font-bold text-primary">10.0%</div>
+                    <div className="text-lg font-bold text-primary">
+                      {tenYearProgress.toFixed(1)}%
+                    </div>
                     <div className="text-xs text-gray-600">10年進捗</div>
                   </div>
                 </div>

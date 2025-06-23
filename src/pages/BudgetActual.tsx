@@ -22,12 +22,13 @@ const BudgetActual: React.FC = () => {
   const [activeChart, setActiveChart] = useState<"revenue" | "profit">(
     "revenue"
   );
+  const [editingCell, setEditingCell] = useState<string | null>(null);
 
   // 事業年度開始月（初期設定から取得、デフォルトは4月）
   const fiscalYearStart = userSetup?.fiscalYearStartMonth || 4;
 
-  // 月次データ（事業年度ベース）
-  const generateMonthlyData = () => {
+  // 月次データ（事業年度ベース）- 編集可能な状態で管理
+  const [monthlyData, setMonthlyData] = useState(() => {
     const months = [];
     const monthNames = [
       "1月",
@@ -44,9 +45,10 @@ const BudgetActual: React.FC = () => {
       "12月",
     ];
 
-    for (let i = 0; i < viewPeriod; i++) {
+    for (let i = 0; i < 12; i++) {
       const monthIndex = (fiscalYearStart - 1 + i) % 12;
       months.push({
+        id: i,
         month: monthNames[monthIndex],
         target: 2000000 + i * 100000,
         actual: 1850000 + i * 120000,
@@ -55,9 +57,32 @@ const BudgetActual: React.FC = () => {
       });
     }
     return months;
+  });
+
+  // 表示期間に応じてデータをフィルタリング
+  const getDisplayData = () => {
+    return monthlyData.slice(0, viewPeriod);
   };
 
-  const monthlyData = generateMonthlyData();
+  // セルの値を更新
+  const handleCellUpdate = (
+    id: number,
+    field: "target" | "profitTarget",
+    value: number
+  ) => {
+    setMonthlyData((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+    );
+    setEditingCell(null);
+  };
+
+  // セルのダブルクリック処理
+  const handleCellDoubleClick = (
+    id: number,
+    field: "target" | "profitTarget"
+  ) => {
+    setEditingCell(`${id}-${field}`);
+  };
 
   const kpiData = [
     { title: "売上達成率", value: "94.0%", status: "warning" },
@@ -276,7 +301,7 @@ const BudgetActual: React.FC = () => {
             {/* 売上実績推移グラフ */}
             {activeChart === "revenue" && (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyData}>
+                <BarChart data={getDisplayData()}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
                   <XAxis dataKey="month" stroke="#333333" />
                   <YAxis
@@ -300,7 +325,7 @@ const BudgetActual: React.FC = () => {
             {/* 月次利益推移グラフ */}
             {activeChart === "profit" && (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyData}>
+                <BarChart data={getDisplayData()}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
                   <XAxis dataKey="month" stroke="#333333" />
                   <YAxis
@@ -326,9 +351,14 @@ const BudgetActual: React.FC = () => {
 
       {/* 詳細比較表 */}
       <div className="card">
-        <h3 className="text-base sm:text-lg font-semibold text-text mb-4">
-          詳細比較表
-        </h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-base sm:text-lg font-semibold text-text">
+            詳細比較表
+          </h3>
+          <div className="text-xs sm:text-sm text-text/70">
+            💡 売上目標・利益目標をダブルクリックで編集できます
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs sm:text-sm">
             <thead>
@@ -355,7 +385,7 @@ const BudgetActual: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {monthlyData.map((data, index) => {
+              {getDisplayData().map((data) => {
                 const revenueRate = ((data.actual / data.target) * 100).toFixed(
                   1
                 );
@@ -364,12 +394,45 @@ const BudgetActual: React.FC = () => {
                   100
                 ).toFixed(1);
                 return (
-                  <tr key={index} className="border-b border-border/50">
+                  <tr key={data.id} className="border-b border-border/50">
                     <td className="py-2 sm:py-3 px-1 sm:px-2 font-medium">
                       {data.month}
                     </td>
-                    <td className="py-2 sm:py-3 px-1 sm:px-2 text-right">
-                      {data.target.toLocaleString()}
+                    <td
+                      className="py-2 sm:py-3 px-1 sm:px-2 text-right cursor-pointer hover:bg-blue-50 transition-colors"
+                      onDoubleClick={() =>
+                        handleCellDoubleClick(data.id, "target")
+                      }
+                      title="ダブルクリックで編集"
+                    >
+                      {editingCell === `${data.id}-target` ? (
+                        <input
+                          type="number"
+                          defaultValue={data.target}
+                          onBlur={(e) =>
+                            handleCellUpdate(
+                              data.id,
+                              "target",
+                              Number(e.target.value)
+                            )
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleCellUpdate(
+                                data.id,
+                                "target",
+                                Number(e.currentTarget.value)
+                              );
+                            } else if (e.key === "Escape") {
+                              setEditingCell(null);
+                            }
+                          }}
+                          className="w-full text-right border border-primary rounded px-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                          autoFocus
+                        />
+                      ) : (
+                        data.target.toLocaleString()
+                      )}
                     </td>
                     <td className="py-2 sm:py-3 px-1 sm:px-2 text-right">
                       {data.actual.toLocaleString()}
@@ -385,8 +448,41 @@ const BudgetActual: React.FC = () => {
                     >
                       {revenueRate}%
                     </td>
-                    <td className="py-2 sm:py-3 px-1 sm:px-2 text-right">
-                      {data.profitTarget.toLocaleString()}
+                    <td
+                      className="py-2 sm:py-3 px-1 sm:px-2 text-right cursor-pointer hover:bg-blue-50 transition-colors"
+                      onDoubleClick={() =>
+                        handleCellDoubleClick(data.id, "profitTarget")
+                      }
+                      title="ダブルクリックで編集"
+                    >
+                      {editingCell === `${data.id}-profitTarget` ? (
+                        <input
+                          type="number"
+                          defaultValue={data.profitTarget}
+                          onBlur={(e) =>
+                            handleCellUpdate(
+                              data.id,
+                              "profitTarget",
+                              Number(e.target.value)
+                            )
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleCellUpdate(
+                                data.id,
+                                "profitTarget",
+                                Number(e.currentTarget.value)
+                              );
+                            } else if (e.key === "Escape") {
+                              setEditingCell(null);
+                            }
+                          }}
+                          className="w-full text-right border border-primary rounded px-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                          autoFocus
+                        />
+                      ) : (
+                        data.profitTarget.toLocaleString()
+                      )}
                     </td>
                     <td className="py-2 sm:py-3 px-1 sm:px-2 text-right">
                       {data.profit.toLocaleString()}

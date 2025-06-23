@@ -163,8 +163,8 @@ const Dashboard: React.FC = () => {
           phaseColor: "#67BACA",
           targetNetWorth: 500000 * year,
           actualNetWorth: 400000 * year,
-          isCompleted: totalMonth <= 100, // 仮の進捗
-          isCurrent: totalMonth === 100, // 現在位置
+          isCompleted: totalMonth <= 24, // 仮の進捗
+          isCurrent: totalMonth === 24, // 現在位置
         });
       }
     }
@@ -385,16 +385,13 @@ const Dashboard: React.FC = () => {
               <p className="text-xs sm:text-sm text-text/70 mt-1">
                 【税理士からのコメント】今月の利益率が改善しています。この調子で経費管理を継続し、来月も安定した利益確保を目指しましょう。節税対策のご相談もお気軽にどうぞ。
               </p>
-              <button className="text-xs sm:text-sm text-primary hover:underline mt-2">
-                詳しく見る →
-              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* 10年進捗可視化カード - カーナビ風 */}
-      <div className="card bg-gradient-to-br from-primary/10 to-primary/20 border-2 border-primary/30">
+      <div className="card bg-gradient-to-br from-primary/10 to-primary/20 border-2 border-primary/30 mb-4 sm:mb-0">
         <div className="flex items-center space-x-2 mb-4">
           <Navigation className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           <h3 className="text-base sm:text-lg font-semibold text-text">
@@ -412,14 +409,47 @@ const Dashboard: React.FC = () => {
               </span>
             </div>
             {currentMonth && (
-              <p className="text-base sm:text-lg font-bold text-primary">
-                {currentMonth.year - 1}年{((currentMonth.month - 1) % 12) + 1}
-                ヶ月目
-              </p>
+              <>
+                <p className="text-base sm:text-lg font-bold text-primary">
+                  {(() => {
+                    const totalMonths = currentMonth.month;
+                    let yearValue = Math.floor((totalMonths - 1) / 12);
+                    let monthValue = ((totalMonths - 1) % 12) + 1;
+
+                    // 12の倍数の場合は次の年の0ヶ月目として処理
+                    if (monthValue === 12) {
+                      yearValue += 1;
+                      monthValue = 0;
+                    }
+
+                    if (yearValue === 0) {
+                      // 1年未満の場合
+                      return `${monthValue}ヶ月`;
+                    } else {
+                      // 1年以上の場合
+                      return `${yearValue}年${monthValue}ヶ月目`;
+                    }
+                  })()}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  {currentMonth?.phase}
+                </p>
+                <div className="mt-2 space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-text/70">🎯 目標純資産</span>
+                    <span className="font-medium">
+                      {(currentMonth.targetNetWorth / 1000).toFixed(0)}万円
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-text/70">💰 現在純資産</span>
+                    <span className="font-medium text-primary">
+                      {(currentMonth.actualNetWorth / 1000).toFixed(0)}万円
+                    </span>
+                  </div>
+                </div>
+              </>
             )}
-            <p className="text-xs sm:text-sm text-gray-600">
-              {currentMonth?.phase}
-            </p>
           </div>
           <div className="bg-white rounded-lg p-3 shadow-sm">
             <div className="flex items-center space-x-2 mb-1">
@@ -428,9 +458,7 @@ const Dashboard: React.FC = () => {
                 目的地
               </span>
             </div>
-            <p className="text-base sm:text-lg font-bold text-accent">
-              9年12ヶ月目
-            </p>
+            <p className="text-base sm:text-lg font-bold text-accent">10年目</p>
             <p className="text-xs sm:text-sm text-gray-600">
               純資産 5,000万円達成
             </p>
@@ -453,7 +481,7 @@ const Dashboard: React.FC = () => {
         <div className="relative">
           {/* 道路風進捗トラック */}
           <div className="relative bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg p-2 sm:p-4 shadow-inner overflow-x-auto md:overflow-x-hidden overflow-y-clip">
-            <div className="flex items-center relative w-full min-w-[900px] md:min-w-0 pr-5 mt-2">
+            <div className="flex items-center relative w-full min-w-[900px] md:min-w-0 pr-5 mt-6 sm:mt-8">
               {/* 月次進捗バー */}
               <div className="flex-1 flex relative z-10">
                 {monthlyProgress.map((month, index) => {
@@ -480,105 +508,114 @@ const Dashboard: React.FC = () => {
                         }`}
                         style={{ minWidth: "2px" }}
                       />
-                      {/* 年度区切り線とインフォメーションマーク */}
+                      {/* 年度区切り線とメモリ */}
                       {isYearStart && index > 0 && (
-                        <div className="absolute left-0 -top-2 sm:-top-4 h-12 sm:h-16 flex flex-col items-center">
-                          {/* お知らせアイコン（ホバーイベント付き） */}
-                          <div
-                            className="relative cursor-pointer mb-1"
-                            onMouseEnter={(e) => {
-                              setHoveredYear(month.year);
-                              const rect =
-                                e.currentTarget.getBoundingClientRect();
-                              const viewportWidth = window.innerWidth;
-                              const viewportHeight = window.innerHeight;
+                        <div className="absolute left-0 -top-6 sm:-top-8 h-16 sm:h-20 flex flex-col items-center z-30">
+                          {/* メモリと年数表示 */}
+                          <div className="flex flex-col items-center  px-1 py-0.5 rounded text-center mb-1 shadow-sm">
+                            <div className="text-xs sm:text-xs text-white font-medium whitespace-nowrap">
+                              {month.year - 1}年
+                            </div>
+                            {/* お知らせアイコン（ホバーイベント付き） */}
+                            <div
+                              className="relative cursor-pointer mt-0.5 touch-manipulation"
+                              onMouseEnter={(e) => {
+                                setHoveredYear(month.year);
+                                const rect =
+                                  e.currentTarget.getBoundingClientRect();
+                                const viewportWidth = window.innerWidth;
+                                const viewportHeight = window.innerHeight;
 
-                              // ツールチップの幅を動的に決定
-                              const tooltipWidth = Math.min(
-                                320,
-                                viewportWidth - 40
-                              );
+                                // ツールチップの幅を動的に決定
+                                const tooltipWidth = Math.min(
+                                  320,
+                                  viewportWidth - 40
+                                );
 
-                              // レスポンシブな位置計算
-                              let x, y;
+                                // レスポンシブな位置計算
+                                let x, y;
 
-                              // タッチデバイスかどうかの判定（モバイル/タブレット判定）
-                              const isTouchDevice =
-                                "ontouchstart" in window ||
-                                navigator.maxTouchPoints > 0;
+                                // タッチデバイスかどうかの判定（モバイル/タブレット判定）
+                                const isTouchDevice =
+                                  "ontouchstart" in window ||
+                                  navigator.maxTouchPoints > 0;
 
-                              if (isTouchDevice && viewportWidth < 768) {
-                                // モバイル・タブレット: 画面中央に表示
-                                x = (viewportWidth - tooltipWidth) / 2;
-                                y = viewportHeight * 0.3; // 画面上部30%の位置
-                              } else {
-                                // デスクトップ（画面幅が狭くても）: アイコンの横に表示
-                                x = rect.right + 10;
-                                y = rect.top;
+                                if (isTouchDevice && viewportWidth < 768) {
+                                  // モバイル・タブレット: 画面中央に表示
+                                  x = (viewportWidth - tooltipWidth) / 2;
+                                  y = viewportHeight * 0.3; // 画面上部30%の位置
+                                } else {
+                                  // デスクトップ（画面幅が狭くても）: アイコンの横に表示
+                                  x = rect.right + 10;
+                                  y = rect.top;
 
-                                // 画面右端を超える場合は左側に表示
-                                if (x + tooltipWidth > viewportWidth - 20) {
-                                  x = rect.left - tooltipWidth - 10;
-                                }
+                                  // 画面右端を超える場合は左側に表示
+                                  if (x + tooltipWidth > viewportWidth - 20) {
+                                    x = rect.left - tooltipWidth - 10;
+                                  }
 
-                                // 画面左端を超える場合は上下中央に表示
-                                if (x < 20) {
-                                  x = Math.max(
-                                    20,
-                                    (viewportWidth - tooltipWidth) / 2
-                                  );
-                                  // 画面幅が狭い場合は縦位置を調整
-                                  if (viewportWidth < 600) {
-                                    y = Math.max(100, viewportHeight * 0.2);
+                                  // 画面左端を超える場合は上下中央に表示
+                                  if (x < 20) {
+                                    x = Math.max(
+                                      20,
+                                      (viewportWidth - tooltipWidth) / 2
+                                    );
+                                    // 画面幅が狭い場合は縦位置を調整
+                                    if (viewportWidth < 600) {
+                                      y = Math.max(100, viewportHeight * 0.2);
+                                    }
+                                  }
+
+                                  // 画面上端を超える場合は下に表示
+                                  if (y < 100) {
+                                    y = rect.bottom + 10;
+                                  }
+
+                                  // 画面下端を超える場合は上に調整
+                                  if (y + 350 > viewportHeight) {
+                                    y = Math.max(50, viewportHeight - 370);
                                   }
                                 }
 
-                                // 画面上端を超える場合は下に表示
-                                if (y < 100) {
-                                  y = rect.bottom + 10;
-                                }
+                                setTooltipPosition({
+                                  x: Math.max(
+                                    10,
+                                    Math.min(
+                                      x,
+                                      viewportWidth - tooltipWidth - 10
+                                    )
+                                  ),
+                                  y: Math.max(10, y),
+                                });
+                              }}
+                              onMouseLeave={() => setHoveredYear(null)}
+                              onClick={() => {
+                                // スマホ用のタッチ対応
+                                const isTouchDevice =
+                                  "ontouchstart" in window ||
+                                  navigator.maxTouchPoints > 0;
+                                if (isTouchDevice && window.innerWidth < 768) {
+                                  if (hoveredYear === month.year) {
+                                    setHoveredYear(null);
+                                  } else {
+                                    setHoveredYear(month.year);
+                                    const viewportWidth = window.innerWidth;
+                                    const viewportHeight = window.innerHeight;
+                                    const tooltipWidth = Math.min(
+                                      320,
+                                      viewportWidth - 40
+                                    );
 
-                                // 画面下端を超える場合は上に調整
-                                if (y + 350 > viewportHeight) {
-                                  y = Math.max(50, viewportHeight - 370);
+                                    setTooltipPosition({
+                                      x: (viewportWidth - tooltipWidth) / 2,
+                                      y: viewportHeight * 0.3,
+                                    });
+                                  }
                                 }
-                              }
-
-                              setTooltipPosition({
-                                x: Math.max(
-                                  10,
-                                  Math.min(x, viewportWidth - tooltipWidth - 10)
-                                ),
-                                y: Math.max(10, y),
-                              });
-                            }}
-                            onMouseLeave={() => setHoveredYear(null)}
-                            onClick={() => {
-                              // スマホ用のタッチ対応
-                              const isTouchDevice =
-                                "ontouchstart" in window ||
-                                navigator.maxTouchPoints > 0;
-                              if (isTouchDevice && window.innerWidth < 768) {
-                                if (hoveredYear === month.year) {
-                                  setHoveredYear(null);
-                                } else {
-                                  setHoveredYear(month.year);
-                                  const viewportWidth = window.innerWidth;
-                                  const viewportHeight = window.innerHeight;
-                                  const tooltipWidth = Math.min(
-                                    320,
-                                    viewportWidth - 40
-                                  );
-
-                                  setTooltipPosition({
-                                    x: (viewportWidth - tooltipWidth) / 2,
-                                    y: viewportHeight * 0.3,
-                                  });
-                                }
-                              }
-                            }}
-                          >
-                            <Info className="h-3 w-3 sm:h-4 sm:w-4 text-orange-400 hover:text-orange-300 animate-pulse transition-colors duration-200" />
+                              }}
+                            >
+                              <Info className="h-3 w-3 text-orange-400 hover:text-orange-300 transition-colors duration-200" />
+                            </div>
                           </div>
                           {/* 年度区切り線（ホバーイベントなし） */}
                           <div className="w-0.5 sm:w-1 flex-1 bg-warning rounded-full shadow-md" />
@@ -594,7 +631,10 @@ const Dashboard: React.FC = () => {
                 <div
                   className="absolute flex items-center justify-center z-20 transition-all duration-1000 pointer-events-none"
                   style={{
-                    right: `${99 - (currentMonth.month / 120) * 100}%`, // デスクトップ: %ベース
+                    right:
+                      windowWidth < 768
+                        ? `${99 - (currentMonth.month / 120) * 99}%` // モバイル: 現在地を中央寄りに表示
+                        : `${99 - (currentMonth.month / 120) * 99}%`, // デスクトップ: %ベース
                     top: "50%",
                     marginTop: "-12px",
                   }}
@@ -627,7 +667,7 @@ const Dashboard: React.FC = () => {
 
           {/* 現在の状況表示 - カーナビ風 */}
           {currentMonth && (
-            <div className="mt-4 bg-white rounded-lg shadow-md border">
+            <div className="mt-8 sm:mt-6 bg-white rounded-lg shadow-md border">
               <div className="bg-gradient-to-r from-primary to-primary/90 text-white px-3 sm:px-4 py-2 rounded-t-lg">
                 <h4 className="text-sm sm:text-base font-medium flex items-center space-x-2">
                   <Navigation className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -635,39 +675,6 @@ const Dashboard: React.FC = () => {
                 </h4>
               </div>
               <div className="p-3 sm:p-4">
-                {/* 基本情報 */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm mb-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-text/70">📍 進捗期間</span>
-                      <span className="font-medium">
-                        {currentMonth.year - 1}年
-                        {((currentMonth.month - 1) % 12) + 1}ヶ月目
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-text/70">🏃 現在フェーズ</span>
-                      <span className="font-medium text-primary">
-                        {currentMonth.phase}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-text/70">🎯 目標純資産</span>
-                      <span className="font-medium">
-                        {(currentMonth.targetNetWorth / 1000).toFixed(0)}万円
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-text/70">💰 現在純資産</span>
-                      <span className="font-medium text-primary">
-                        {(currentMonth.actualNetWorth / 1000).toFixed(0)}万円
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
                 {/* 現在年の目安とやることリスト */}
                 {(() => {
                   const currentYearGuide = yearlyGuides.find(
@@ -676,7 +683,7 @@ const Dashboard: React.FC = () => {
                   if (!currentYearGuide) return null;
 
                   return (
-                    <div className="border-t border-border pt-4">
+                    <div>
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="bg-primary/5 rounded-lg p-3">
                           <div className="flex items-center space-x-2 mb-2">
